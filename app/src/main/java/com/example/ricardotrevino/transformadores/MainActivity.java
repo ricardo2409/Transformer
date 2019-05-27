@@ -13,6 +13,8 @@ import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBMapper;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBScanExpression;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBTable;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
+
+import java.util.List;
 import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
@@ -41,24 +43,30 @@ public class MainActivity extends AppCompatActivity {
                 .awsConfiguration(configuration)
                 .build();
 
-        //createTransformador();
-        readTransformadores();
+        createTransformador();
+        //readTransformadores();
     }
 
     public void createTransformador(){
-        final TransformadoresDO transformador = new TransformadoresDO();
-        transformador.setUserId("1");
-        transformador.setItemId("1");
-        transformador.setInfo("Esto es info");
-        transformador.setLatitude(25.654028);
-        transformador.setLongitude(-100.266437);
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                dynamoDBMapper.save(transformador);
-                // Item saved
-            }
-        }).start();
+        for(int i = 13; i < 23; i++){
+            final com.amazonaws.models.nosql.TransformadoresDO transformador = new com.amazonaws.models.nosql.TransformadoresDO();
+            transformador.setUserId(Integer.toString(i));
+            transformador.setItemId(Integer.toString(i));
+            transformador.setCapacidad(Double.valueOf(i));
+            transformador.setPoste("Madera");
+            transformador.setVoltaje(Double.valueOf(220));
+            transformador.setNumserie(Double.valueOf(660198));
+            transformador.setLatitude(25.654028);
+            transformador.setLongitude(-100.266437);
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    dynamoDBMapper.save(transformador);
+                    // Item saved
+                }
+            }).start();
+        }
+
 
     }
 
@@ -66,14 +74,12 @@ public class MainActivity extends AppCompatActivity {
         new Thread(new Runnable() {
             @Override
             public void run() {
-
-                TransformadoresDO transformador = dynamoDBMapper.load(TransformadoresDO.class, "1", "1");
-
-                // Item read
-                Log.d("Info: ", transformador.getInfo());
-
-                TransformadoresDO Lista = dynamoDBMapper.scan(TransformadoresDO.class, new DynamoDBScanExpression());
-
+                DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
+                List<com.amazonaws.models.nosql.TransformadoresDO> transformadores =  dynamoDBMapper.scan(com.amazonaws.models.nosql.TransformadoresDO.class, scanExpression);
+                for(com.amazonaws.models.nosql.TransformadoresDO transformador: transformadores){
+                    System.out.println("Estoy en el for");
+                    System.out.println(transformador.getTipo());
+                }
             }
         }).start();
     }
