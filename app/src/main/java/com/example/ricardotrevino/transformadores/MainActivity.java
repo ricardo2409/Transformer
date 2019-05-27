@@ -3,6 +3,13 @@ package com.example.ricardotrevino.transformadores;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Spinner;
+import android.widget.Toast;
 
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.mobile.client.AWSMobileClient;
@@ -17,14 +24,21 @@ import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 import java.util.List;
 import java.util.Random;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener, View.OnClickListener{
 
     DynamoDBMapper dynamoDBMapper;
+    Spinner spinnerTipo, spinnerPoste, spinnerVoltaje;
+    ArrayAdapter<String> adapterTipo, adapterPoste, adapterVoltaje;
+    String TipoValue, PosteValue, VoltajeValue;
+    EditText etMarca, etCapacidad, etNumSerie;
+    Button btnGuardar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        initValues();
+        setSpinners();
         AWSMobileClient.getInstance().initialize(this, new AWSStartupHandler() {
             @Override
             public void onComplete(AWSStartupResult awsStartupResult) {
@@ -43,19 +57,23 @@ public class MainActivity extends AppCompatActivity {
                 .awsConfiguration(configuration)
                 .build();
 
-        createTransformador();
+        //createTransformador();
         //readTransformadores();
     }
 
     public void createTransformador(){
-        for(int i = 13; i < 23; i++){
+
+        if(checkEditTexts()){
             final com.amazonaws.models.nosql.TransformadoresDO transformador = new com.amazonaws.models.nosql.TransformadoresDO();
-            transformador.setUserId(Integer.toString(i));
-            transformador.setItemId(Integer.toString(i));
-            transformador.setCapacidad(Double.valueOf(i));
-            transformador.setPoste("Madera");
-            transformador.setVoltaje(Double.valueOf(220));
-            transformador.setNumserie(Double.valueOf(660198));
+            transformador.setUserId("1");
+            transformador.setItemId("1");
+            transformador.setCapacidad(Double.valueOf(etCapacidad.getText().toString()));
+            transformador.setPoste(PosteValue);
+            transformador.setVoltaje(Double.valueOf(VoltajeValue));
+            transformador.setNumserie(Double.valueOf(etNumSerie.getText().toString()));
+            transformador.setMarca(etMarca.getText().toString());
+            transformador.setTipo(TipoValue);
+
             transformador.setLatitude(25.654028);
             transformador.setLongitude(-100.266437);
             new Thread(new Runnable() {
@@ -63,9 +81,16 @@ public class MainActivity extends AppCompatActivity {
                 public void run() {
                     dynamoDBMapper.save(transformador);
                     // Item saved
+                    Toast.makeText(getApplicationContext(), "¡ Información Guardada !",
+                            Toast.LENGTH_LONG).show();
                 }
             }).start();
+        }else{
+            Toast.makeText(getApplicationContext(), "Campo Vacio",
+                    Toast.LENGTH_LONG).show();
         }
+
+
 
 
     }
@@ -82,5 +107,75 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }).start();
+    }
+
+    public void setSpinners(){
+        String[] itemsTipo = {"Monofásico", "Trifásico"};
+        String[] itemsVoltaje = {"13.8", "34.5"};
+        String[] itemsPoste = {"Madera", "Metal"};
+        spinnerTipo = (Spinner)findViewById(R.id.spinnerTipo);
+        spinnerPoste = (Spinner)findViewById(R.id.spinnerPoste);
+        spinnerVoltaje = (Spinner)findViewById(R.id.spinnerVoltaje);
+
+        adapterTipo = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, itemsTipo);
+        spinnerTipo.setAdapter(adapterTipo);
+        spinnerTipo.setOnItemSelectedListener(this);
+
+        adapterPoste = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, itemsPoste);
+        spinnerPoste.setAdapter(adapterPoste);
+        spinnerPoste.setOnItemSelectedListener(this);
+
+        adapterVoltaje = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, itemsVoltaje);
+        spinnerVoltaje.setAdapter(adapterVoltaje);
+        spinnerVoltaje.setOnItemSelectedListener(this);
+
+    }
+
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        if(parent.getId() == R.id.spinnerTipo)
+        {
+            TipoValue = parent.getSelectedItem().toString();
+        }
+        else if(parent.getId() == R.id.spinnerPoste)
+        {
+            PosteValue = parent.getSelectedItem().toString();
+
+        }else if(parent.getId() == R.id.spinnerVoltaje)
+        {
+            VoltajeValue = parent.getSelectedItem().toString();
+
+        }
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+
+    }
+    public void initValues(){
+        TipoValue = "Trifásico";
+        PosteValue = "Madera";
+        VoltajeValue = "13.8";
+        etMarca = (EditText)findViewById(R.id.etMarca);
+        etCapacidad = (EditText)findViewById(R.id.etCapacidad);
+        etNumSerie = (EditText)findViewById(R.id.etNumSerie);
+        btnGuardar = (Button)findViewById(R.id.btnGuardar);
+        btnGuardar.setOnClickListener(this);
+    }
+
+    public boolean checkEditTexts(){
+        if(etMarca.getText().toString().matches("") && etCapacidad.getText().toString().matches("") && etNumSerie.getText().toString().matches("")){
+            System.out.println("Vacio");
+            return false;
+        }else{
+            System.out.println("No Vacio");
+
+            return true;
+        }
+    }
+
+    @Override
+    public void onClick(View v) {
+        createTransformador();
     }
 }

@@ -1,3 +1,15 @@
 <resources>
     <string name="app_name">Transformadores</string>
+    <string-array name="tipo_array">
+        <item>Monofásico</item>
+        <item>Trifásico</item>
+    </string-array>
+    <string-array name="voltaje_array">
+        <item>13.8 kva</item>
+        <item>34.5 kva</item>
+    </string-array>
+    <string-array name="poste_array">
+        <item>Madera</item>
+        <item>Metal</item>
+    </string-array>
 </resources>

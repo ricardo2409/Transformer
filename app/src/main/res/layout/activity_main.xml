@@ -23,14 +23,12 @@
                 android:layout_weight="1"
                 android:text="Tipo:" />
 
-            <EditText
-                android:id="@+id/etTipo"
-                android:layout_width="wrap_content"
+            <Spinner
+                android:id="@+id/spinnerTipo"
+                android:layout_width="215dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:ems="10"
-                android:inputType="textPersonName"
-                android:text="Name" />
+                android:layout_weight="1" />
+
         </LinearLayout>
 
         <LinearLayout
@@ -47,13 +45,12 @@
                 android:text="Marca:" />
 
             <EditText
-                android:id="@+id/editText"
+                android:id="@+id/etMarca"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:ems="10"
-                android:inputType="textPersonName"
-                android:text="Name" />
+                android:inputType="textPersonName" />
         </LinearLayout>
 
         <LinearLayout
@@ -69,13 +66,12 @@
                 android:text="Capacidad:" />
 
             <EditText
-                android:id="@+id/editText"
+                android:id="@+id/etCapacidad"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:ems="10"
-                android:inputType="textPersonName|number"
-                android:text="Name" />
+                android:inputType="textPersonName|number" />
         </LinearLayout>
 
         <LinearLayout
@@ -90,14 +86,11 @@
                 android:layout_weight="1"
                 android:text="Poste:" />
 
-            <EditText
-                android:id="@+id/editText"
-                android:layout_width="wrap_content"
+            <Spinner
+                android:id="@+id/spinnerPoste"
+                android:layout_width="215dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:ems="10"
-                android:inputType="textPersonName"
-                android:text="Name" />
+                android:layout_weight="1" />
         </LinearLayout>
 
         <LinearLayout
@@ -112,14 +105,11 @@
                 android:layout_weight="1"
                 android:text="Voltaje:" />
 
-            <EditText
-                android:id="@+id/editText"
-                android:layout_width="wrap_content"
+            <Spinner
+                android:id="@+id/spinnerVoltaje"
+                android:layout_width="215dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:ems="10"
-                android:inputType="textPersonName|number"
-                android:text="Name" />
+                android:layout_weight="1" />
         </LinearLayout>
 
         <LinearLayout
@@ -135,13 +125,12 @@
                 android:text="# de Serie:" />
 
             <EditText
-                android:id="@+id/editText"
+                android:id="@+id/etNumSerie"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:ems="10"
-                android:inputType="textPersonName|number"
-                android:text="Name" />
+                android:inputType="textPersonName|number" />
         </LinearLayout>
 
         <Button
