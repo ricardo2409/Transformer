@@ -1,5 +1,8 @@
 package com.example.ricardotrevino.transformadores;
 
+import android.location.Location;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -24,7 +27,13 @@ import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 import java.util.List;
 import java.util.Random;
 
-public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener, View.OnClickListener{
+import com.akhgupta.easylocation.EasyLocationAppCompatActivity;
+import com.akhgupta.easylocation.EasyLocationRequest;
+import com.akhgupta.easylocation.EasyLocationRequestBuilder;
+import com.google.android.gms.location.LocationRequest;
+
+
+public class MainActivity extends EasyLocationAppCompatActivity implements AdapterView.OnItemSelectedListener, View.OnClickListener{
 
     DynamoDBMapper dynamoDBMapper;
     Spinner spinnerTipo, spinnerPoste, spinnerVoltaje;
@@ -32,6 +41,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     String TipoValue, PosteValue, VoltajeValue;
     EditText etMarca, etCapacidad, etNumSerie;
     Button btnGuardar;
+    Float latitudeValue, longitudeValue;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,16 +68,15 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 .awsConfiguration(configuration)
                 .build();
 
-        //createTransformador();
-        //readTransformadores();
+
     }
 
     public void createTransformador(){
 
         if(checkEditTexts()){
             final com.amazonaws.models.nosql.TransformadoresDO transformador = new com.amazonaws.models.nosql.TransformadoresDO();
-            transformador.setUserId("1");
-            transformador.setItemId("1");
+            transformador.setUserId("109");
+            transformador.setItemId("108");
             transformador.setCapacidad(Double.valueOf(etCapacidad.getText().toString()));
             transformador.setPoste(PosteValue);
             transformador.setVoltaje(Double.valueOf(VoltajeValue));
@@ -74,20 +84,18 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             transformador.setMarca(etMarca.getText().toString());
             transformador.setTipo(TipoValue);
 
-            transformador.setLatitude(25.654028);
-            transformador.setLongitude(-100.266437);
+            transformador.setLatitude((double)latitudeValue);//Valor del gps
+            transformador.setLongitude((double)longitudeValue);//Valor del gps
             new Thread(new Runnable() {
                 @Override
                 public void run() {
                     dynamoDBMapper.save(transformador);
                     // Item saved
-                    Toast.makeText(getApplicationContext(), "¡ Información Guardada !",
-                            Toast.LENGTH_LONG).show();
+                    showToast("Información Guardada");
                 }
             }).start();
         }else{
-            Toast.makeText(getApplicationContext(), "Campo Vacio",
-                    Toast.LENGTH_LONG).show();
+            showToast("Campo vacío");
         }
 
 
@@ -161,6 +169,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         etNumSerie = (EditText)findViewById(R.id.etNumSerie);
         btnGuardar = (Button)findViewById(R.id.btnGuardar);
         btnGuardar.setOnClickListener(this);
+        latitudeValue = (float) 0;
+        longitudeValue = (float) 0;
+
+
     }
 
     public boolean checkEditTexts(){
@@ -176,6 +188,58 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     @Override
     public void onClick(View v) {
+        requestSingleLocation();
         createTransformador();
+    }
+
+    private void showToast(final String message) {
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    @Override
+    public void onLocationPermissionGranted() {
+        showToast("Location Permission Granted");
+    }
+
+    @Override
+    public void onLocationPermissionDenied() {
+        showToast("Location Permission Denied");
+    }
+
+    @Override
+    public void onLocationReceived(Location location) {
+        showToast(location.getProvider() + "," + location.getLatitude() + "," + location.getLongitude());
+        latitudeValue = (float)location.getLatitude();
+        longitudeValue = (float)location.getLongitude();
+        System.out.println("Esto es lat long: " + latitudeValue + " " + longitudeValue);
+
+    }
+
+    @Override
+    public void onLocationProviderEnabled() {
+        showToast("Location services are now ON");
+
+    }
+
+    @Override
+    public void onLocationProviderDisabled() {
+        showToast("Location services are still Off");
+    }
+
+    public void requestSingleLocation(){
+        LocationRequest locationRequest = new LocationRequest()
+                .setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY)
+                .setInterval(5000)
+                .setFastestInterval(5000);
+        EasyLocationRequest easyLocationRequest = new EasyLocationRequestBuilder()
+                .setLocationRequest(locationRequest)
+                .setFallBackToLastLocationTime(3000)
+                .build();
+        requestSingleLocationFix(easyLocationRequest);
     }
 }
