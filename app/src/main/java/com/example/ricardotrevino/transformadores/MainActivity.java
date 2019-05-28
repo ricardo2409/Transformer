@@ -24,8 +24,10 @@ import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBScanExpr
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBTable;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 
+import java.security.Timestamp;
 import java.util.List;
 import java.util.Random;
+import java.util.UUID;
 
 import com.akhgupta.easylocation.EasyLocationAppCompatActivity;
 import com.akhgupta.easylocation.EasyLocationRequest;
@@ -75,8 +77,11 @@ public class MainActivity extends EasyLocationAppCompatActivity implements Adapt
 
         if(checkEditTexts()){
             final com.amazonaws.models.nosql.TransformadoresDO transformador = new com.amazonaws.models.nosql.TransformadoresDO();
-            transformador.setUserId("109");
-            transformador.setItemId("108");
+            String uuid= UUID.randomUUID().toString();//unique ids
+            String uuid2= UUID.randomUUID().toString();
+
+            transformador.setUserId(uuid);
+            transformador.setItemId(uuid2);
             transformador.setCapacidad(Double.valueOf(etCapacidad.getText().toString()));
             transformador.setPoste(PosteValue);
             transformador.setVoltaje(Double.valueOf(VoltajeValue));
@@ -241,5 +246,9 @@ public class MainActivity extends EasyLocationAppCompatActivity implements Adapt
                 .setFallBackToLastLocationTime(3000)
                 .build();
         requestSingleLocationFix(easyLocationRequest);
+    }
+
+    void print(String message){
+        System.out.println(message);
     }
 }
