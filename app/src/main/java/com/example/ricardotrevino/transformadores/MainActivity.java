@@ -76,29 +76,32 @@ public class MainActivity extends EasyLocationAppCompatActivity implements Adapt
     public void createTransformador(){
 
         if(checkEditTexts()){
-            final com.amazonaws.models.nosql.TransformadoresDO transformador = new com.amazonaws.models.nosql.TransformadoresDO();
-            String uuid= UUID.randomUUID().toString();//unique ids
-            String uuid2= UUID.randomUUID().toString();
+            for(int i = 0; i < 1; i++){
+                final com.amazonaws.models.nosql.TransformadoresDO transformador = new com.amazonaws.models.nosql.TransformadoresDO();
+                String uuid= UUID.randomUUID().toString();//unique ids
+                String uuid2= UUID.randomUUID().toString();
 
-            transformador.setUserId(uuid);
-            transformador.setItemId(uuid2);
-            transformador.setCapacidad(Double.valueOf(etCapacidad.getText().toString()));
-            transformador.setPoste(PosteValue);
-            transformador.setVoltaje(Double.valueOf(VoltajeValue));
-            transformador.setNumserie(Double.valueOf(etNumSerie.getText().toString()));
-            transformador.setMarca(etMarca.getText().toString());
-            transformador.setTipo(TipoValue);
+                transformador.setUserId(uuid);
+                transformador.setItemId(uuid2);
+                transformador.setCapacidad(Double.valueOf(etCapacidad.getText().toString()));
+                transformador.setPoste(PosteValue);
+                transformador.setVoltaje(Double.valueOf(VoltajeValue));
+                transformador.setNumserie(Double.valueOf(etNumSerie.getText().toString()));
+                transformador.setMarca(etMarca.getText().toString());
+                transformador.setTipo(TipoValue);
+                print("Esto tiene lat y long antes de mandarlos: " + latitudeValue +  " " + longitudeValue);
+                transformador.setLatitude((double)latitudeValue);//Valor del gps
+                transformador.setLongitude((double)longitudeValue);//Valor del gps
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        dynamoDBMapper.save(transformador);
+                        // Item saved
+                        //showToast("Información Guardada");
+                    }
+                }).start();
+            }
 
-            transformador.setLatitude((double)latitudeValue);//Valor del gps
-            transformador.setLongitude((double)longitudeValue);//Valor del gps
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    dynamoDBMapper.save(transformador);
-                    // Item saved
-                    showToast("Información Guardada");
-                }
-            }).start();
         }else{
             showToast("Campo vacío");
         }
@@ -218,7 +221,7 @@ public class MainActivity extends EasyLocationAppCompatActivity implements Adapt
 
     @Override
     public void onLocationReceived(Location location) {
-        showToast(location.getProvider() + "," + location.getLatitude() + "," + location.getLongitude());
+        showToast(location.getLatitude() + "," + location.getLongitude());
         latitudeValue = (float)location.getLatitude();
         longitudeValue = (float)location.getLongitude();
         System.out.println("Esto es lat long: " + latitudeValue + " " + longitudeValue);
