@@ -1,8 +1,11 @@
 package com.example.ricardotrevino.transformadores;
 
+import android.content.Intent;
+import android.graphics.Bitmap;
 import android.location.Location;
 import android.os.Handler;
 import android.os.Looper;
+import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -11,8 +14,10 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Toast;
+
 
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.mobile.client.AWSMobileClient;
@@ -42,10 +47,11 @@ public class MainActivity extends EasyLocationAppCompatActivity implements Adapt
     ArrayAdapter<String> adapterTipo, adapterPoste, adapterVoltaje;
     String TipoValue, PosteValue, VoltajeValue;
     EditText etMarca, etCapacidad, etNumSerie;
-    Button btnGuardar;
+    Button btnGuardar, btnFoto;
     Float latitudeValue, longitudeValue;
+    ImageView ivFoto;
 
-
+    static final int REQUEST_IMAGE_CAPTURE = 1;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -115,7 +121,7 @@ public class MainActivity extends EasyLocationAppCompatActivity implements Adapt
                 List<com.amazonaws.models.nosql.TransformadoresDO> transformadores =  dynamoDBMapper.scan(com.amazonaws.models.nosql.TransformadoresDO.class, scanExpression);
                 int cont  = 0;
                 print(Integer.toString(transformadores.size()));
-                
+
                 for(com.amazonaws.models.nosql.TransformadoresDO transformador: transformadores){
                     cont ++;
                     System.out.println(cont + " " + transformador.getUserId());
@@ -176,8 +182,12 @@ public class MainActivity extends EasyLocationAppCompatActivity implements Adapt
         etNumSerie = (EditText)findViewById(R.id.etNumSerie);
         btnGuardar = (Button)findViewById(R.id.btnGuardar);
         btnGuardar.setOnClickListener(this);
+        btnFoto = (Button)findViewById(R.id.btnFoto);
+        btnFoto.setOnClickListener(this);
         latitudeValue = (float) 0;
         longitudeValue = (float) 0;
+        ivFoto = (ImageView)findViewById(R.id.ivFoto);
+
     }
 
     public boolean checkEditTexts(){
@@ -193,7 +203,14 @@ public class MainActivity extends EasyLocationAppCompatActivity implements Adapt
 
     @Override
     public void onClick(View v) {
-        requestSingleLocation();
+        switch(v.getId()) {
+            case R.id.btnGuardar:
+                requestSingleLocation();
+                break;
+            case R.id.btnFoto:
+                tomarFoto();
+                break;
+        }
     }
 
     private void showToast(final String message) {
@@ -250,5 +267,47 @@ public class MainActivity extends EasyLocationAppCompatActivity implements Adapt
 
     void print(String message){
         System.out.println(message);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+    }
+    public void tomarFoto(){
+        dispatchTakePictureIntent();
+    }
+    private void dispatchTakePictureIntent() {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+        }
+    }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+            Bundle extras = data.getExtras();
+            Bitmap imageBitmap = (Bitmap) extras.get("data");
+            ivFoto.setImageBitmap(imageBitmap);
+            ivFoto.setRotation(90);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 }
