@@ -46,7 +46,7 @@ public class MainActivity extends EasyLocationAppCompatActivity implements Adapt
     ArrayAdapter<String> adapterTipo, adapterPoste, adapterVoltaje;
     String TipoValue, PosteValue, VoltajeValue;
     EditText etMarca, etCapacidad, etNumSerie;
-    Button btnGuardar, btnFoto;
+    Button btnGuardar, btnFoto, btnMapa;
     Float latitudeValue, longitudeValue;
     ImageView ivFoto;
     byte[] byteArray;
@@ -196,6 +196,8 @@ public class MainActivity extends EasyLocationAppCompatActivity implements Adapt
         btnGuardar.setOnClickListener(this);
         btnFoto = (Button)findViewById(R.id.btnFoto);
         btnFoto.setOnClickListener(this);
+        btnMapa = (Button)findViewById(R.id.btnMap);
+        btnMapa.setOnClickListener(this);
         latitudeValue = (float) 0;
         longitudeValue = (float) 0;
         ivFoto = (ImageView)findViewById(R.id.ivFoto);
@@ -223,8 +225,14 @@ public class MainActivity extends EasyLocationAppCompatActivity implements Adapt
                     showToast("Campo Vacío");
                 }
                 break;
+
             case R.id.btnFoto:
                 tomarFoto();
+                break;
+
+            case R.id.btnMap:
+                Intent intent = new Intent(this, MapsActivity.class);
+                startActivity(intent);
                 break;
         }
     }
