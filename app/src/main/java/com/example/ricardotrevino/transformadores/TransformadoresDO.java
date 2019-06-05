@@ -17,6 +17,7 @@ public class TransformadoresDO {
     private String _userId;
     private String _itemId;
     private Double _capacidad;
+    private byte[] _imagen;
     private Double _latitude;
     private Double _longitude;
     private String _marca;
@@ -50,6 +51,14 @@ public class TransformadoresDO {
 
     public void setCapacidad(final Double _capacidad) {
         this._capacidad = _capacidad;
+    }
+    @DynamoDBAttribute(attributeName = "imagen")
+    public byte[] getImagen() {
+        return _imagen;
+    }
+
+    public void setImagen(final byte[] _imagen) {
+        this._imagen = _imagen;
     }
     @DynamoDBAttribute(attributeName = "latitude")
     public Double getLatitude() {

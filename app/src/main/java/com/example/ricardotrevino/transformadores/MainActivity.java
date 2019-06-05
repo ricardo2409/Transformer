@@ -2,11 +2,12 @@ package com.example.ricardotrevino.transformadores;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.location.Location;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.MediaStore;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -26,12 +27,10 @@ import com.amazonaws.mobile.client.AWSStartupResult;
 import com.amazonaws.mobile.config.AWSConfiguration;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBMapper;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBScanExpression;
-import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBTable;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 
-import java.security.Timestamp;
+import java.io.ByteArrayOutputStream;
 import java.util.List;
-import java.util.Random;
 import java.util.UUID;
 
 import com.akhgupta.easylocation.EasyLocationAppCompatActivity;
@@ -50,8 +49,10 @@ public class MainActivity extends EasyLocationAppCompatActivity implements Adapt
     Button btnGuardar, btnFoto;
     Float latitudeValue, longitudeValue;
     ImageView ivFoto;
-
+    byte[] byteArray;
+    Bitmap bitmap;
     static final int REQUEST_IMAGE_CAPTURE = 1;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -81,35 +82,29 @@ public class MainActivity extends EasyLocationAppCompatActivity implements Adapt
 
     public void createTransformador(){
 
-        if(checkEditTexts()){
-
-            final com.amazonaws.models.nosql.TransformadoresDO transformador = new com.amazonaws.models.nosql.TransformadoresDO();
-            String uuid= UUID.randomUUID().toString();//unique ids
-            String uuid2= UUID.randomUUID().toString();
-            transformador.setUserId(uuid);
-            transformador.setItemId(uuid2);
-            transformador.setCapacidad(Double.valueOf(etCapacidad.getText().toString()));
-            transformador.setPoste(PosteValue);
-            transformador.setVoltaje(Double.valueOf(VoltajeValue));
-            transformador.setNumserie(Double.valueOf(etNumSerie.getText().toString()));
-            transformador.setMarca(etMarca.getText().toString());
-            transformador.setTipo(TipoValue);
-            print("Esto tiene lat y long antes de mandarlos: " + latitudeValue +  " " + longitudeValue);
-            transformador.setLatitude((double)latitudeValue);//Valor del gps
-            transformador.setLongitude((double)longitudeValue);//Valor del gps
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    dynamoDBMapper.save(transformador);
-                    // Item saved
-                    //showToast("Información Guardada");
-                }
-            }).start();
-
-
-        }else{
-            showToast("Campo vacío");
-        }
+        final com.amazonaws.models.nosql.TransformadoresDO transformador = new com.amazonaws.models.nosql.TransformadoresDO();
+        String uuid= UUID.randomUUID().toString();//unique ids
+        String uuid2= UUID.randomUUID().toString();
+        transformador.setUserId(uuid);
+        transformador.setItemId(uuid2);
+        transformador.setCapacidad(Double.valueOf(etCapacidad.getText().toString()));
+        transformador.setPoste(PosteValue);
+        transformador.setVoltaje(Double.valueOf(VoltajeValue));
+        transformador.setNumserie(Double.valueOf(etNumSerie.getText().toString()));
+        transformador.setMarca(etMarca.getText().toString());
+        transformador.setTipo(TipoValue);
+        transformador.setImagen(byteArray);
+        print("Esto tiene lat y long antes de mandarlos: " + latitudeValue +  " " + longitudeValue);
+        transformador.setLatitude((double)latitudeValue);//Valor del gps
+        transformador.setLongitude((double)longitudeValue);//Valor del gps
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                dynamoDBMapper.save(transformador);
+                // Item saved
+                showToast("Información Guardada");
+            }
+        }).start();
     }
 
     public void readTransformadores() {
@@ -121,10 +116,26 @@ public class MainActivity extends EasyLocationAppCompatActivity implements Adapt
                 List<com.amazonaws.models.nosql.TransformadoresDO> transformadores =  dynamoDBMapper.scan(com.amazonaws.models.nosql.TransformadoresDO.class, scanExpression);
                 int cont  = 0;
                 print(Integer.toString(transformadores.size()));
+                byte[] BAimagenTransformador;
 
                 for(com.amazonaws.models.nosql.TransformadoresDO transformador: transformadores){
-                    cont ++;
-                    System.out.println(cont + " " + transformador.getUserId());
+                    BAimagenTransformador = transformador.getImagen(); //Get transformador image
+                    bitmap = BitmapFactory.decodeByteArray(BAimagenTransformador, 0, BAimagenTransformador.length);
+
+                    //Rota la imagen para que se vea normal
+                    final Bitmap bOutput;
+                    float degrees = 90;//rotation degree
+                    Matrix matrix = new Matrix();
+                    matrix.setRotate(degrees);
+                    bOutput = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            ivFoto.setImageBitmap(bOutput);
+                        }
+                    });
+
                 }
             }
         }).start();
@@ -205,7 +216,11 @@ public class MainActivity extends EasyLocationAppCompatActivity implements Adapt
     public void onClick(View v) {
         switch(v.getId()) {
             case R.id.btnGuardar:
-                requestSingleLocation();
+                if(checkEditTexts()){
+                    requestSingleLocation();
+                }else{
+                    showToast("Campo Vacío");
+                }
                 break;
             case R.id.btnFoto:
                 tomarFoto();
@@ -238,8 +253,8 @@ public class MainActivity extends EasyLocationAppCompatActivity implements Adapt
         latitudeValue = (float)location.getLatitude();
         longitudeValue = (float)location.getLongitude();
         System.out.println("Esto es lat long: " + latitudeValue + " " + longitudeValue);
-        createTransformador();//Crea el transformador despues de tener la location
-        //readTransformadores();
+        //createTransformador();//Crea el transformador despues de tener la location
+        readTransformadores();
     }
 
     @Override
@@ -303,6 +318,12 @@ public class MainActivity extends EasyLocationAppCompatActivity implements Adapt
             Bitmap imageBitmap = (Bitmap) extras.get("data");
             ivFoto.setImageBitmap(imageBitmap);
             ivFoto.setRotation(90);
+
+            //Convert bitmap into byte array
+            ByteArrayOutputStream stream = new ByteArrayOutputStream();
+            imageBitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+            byteArray = stream.toByteArray();
+            print("Esto es el byte array: " + byteArray.toString());
         }
     }
 
