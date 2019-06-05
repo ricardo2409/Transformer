@@ -51,6 +51,7 @@ public class MainActivity extends EasyLocationAppCompatActivity implements Adapt
     ImageView ivFoto;
     byte[] byteArray;
     Bitmap bitmap;
+    Bitmap bOutput;
     static final int REQUEST_IMAGE_CAPTURE = 1;
 
     @Override
@@ -123,7 +124,7 @@ public class MainActivity extends EasyLocationAppCompatActivity implements Adapt
                     bitmap = BitmapFactory.decodeByteArray(BAimagenTransformador, 0, BAimagenTransformador.length);
 
                     //Rota la imagen para que se vea normal
-                    final Bitmap bOutput;
+
                     float degrees = 90;//rotation degree
                     Matrix matrix = new Matrix();
                     matrix.setRotate(degrees);
@@ -239,12 +240,12 @@ public class MainActivity extends EasyLocationAppCompatActivity implements Adapt
 
     @Override
     public void onLocationPermissionGranted() {
-        showToast("Location Permission Granted");
+        showToast("Permiso Otorgado");
     }
 
     @Override
     public void onLocationPermissionDenied() {
-        showToast("Location Permission Denied");
+        showToast("Permiso Negado");
     }
 
     @Override
@@ -253,19 +254,19 @@ public class MainActivity extends EasyLocationAppCompatActivity implements Adapt
         latitudeValue = (float)location.getLatitude();
         longitudeValue = (float)location.getLongitude();
         System.out.println("Esto es lat long: " + latitudeValue + " " + longitudeValue);
-        //createTransformador();//Crea el transformador despues de tener la location
-        readTransformadores();
+        createTransformador();//Crea el transformador despues de tener la location
+        //readTransformadores();
     }
 
     @Override
     public void onLocationProviderEnabled() {
-        showToast("Location services are now ON");
+        print("Location services are now ON");
 
     }
 
     @Override
     public void onLocationProviderDisabled() {
-        showToast("Location services are still Off");
+        print("Location services are still Off");
     }
 
     public void requestSingleLocation(){
