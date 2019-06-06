@@ -7,6 +7,7 @@ import android.graphics.Matrix;
 import android.location.Location;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.Parcelable;
 import android.provider.MediaStore;
 import android.os.Bundle;
 import android.util.Log;
@@ -18,6 +19,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Toast;
+import android.util.Log;
 
 
 import com.amazonaws.auth.AWSCredentialsProvider;
@@ -27,9 +29,11 @@ import com.amazonaws.mobile.client.AWSStartupResult;
 import com.amazonaws.mobile.config.AWSConfiguration;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBMapper;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBScanExpression;
+import com.amazonaws.models.nosql.TransformadoresDO;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 
 import java.io.ByteArrayOutputStream;
+import java.io.Serializable;
 import java.util.List;
 import java.util.UUID;
 
@@ -52,12 +56,19 @@ public class MainActivity extends EasyLocationAppCompatActivity implements Adapt
     byte[] byteArray;
     Bitmap bitmap;
     Bitmap bOutput;
+    List<com.amazonaws.models.nosql.TransformadoresDO> transformadores;
+
+    MapsActivity mapsActivity;
     static final int REQUEST_IMAGE_CAPTURE = 1;
+
+    static MainActivity mainActivity;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        print("OnCreate");
+        mainActivity = this;
         initValues();
         setSpinners();
         AWSMobileClient.getInstance().initialize(this, new AWSStartupHandler() {
@@ -78,7 +89,27 @@ public class MainActivity extends EasyLocationAppCompatActivity implements Adapt
                 .awsConfiguration(configuration)
                 .build();
 
+        try {
+            readTransformadores();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
 
+    @Override
+    protected void onPostResume() {
+        //Pide los transformadores
+        super.onPostResume();
+        print("OnPostResume");
+        try {
+            readTransformadores();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static MainActivity getInstance(){
+        return mainActivity;
     }
 
     public void createTransformador(){
@@ -108,38 +139,43 @@ public class MainActivity extends EasyLocationAppCompatActivity implements Adapt
         }).start();
     }
 
-    public void readTransformadores() {
+    public void readTransformadores() throws InterruptedException {
         print("readTransformadores");
         new Thread(new Runnable() {
             @Override
             public void run() {
+                print("Estoy en el run");
                 DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
-                List<com.amazonaws.models.nosql.TransformadoresDO> transformadores =  dynamoDBMapper.scan(com.amazonaws.models.nosql.TransformadoresDO.class, scanExpression);
+                transformadores =  dynamoDBMapper.scan(TransformadoresDO.class, scanExpression);
+                print("Este es el tamaño de resultados: " + Integer.toString(transformadores.size()));
+                print("Esto tiene Transformadores al hacer el scan: " +  transformadores);
                 int cont  = 0;
-                print(Integer.toString(transformadores.size()));
                 byte[] BAimagenTransformador;
-
-                for(com.amazonaws.models.nosql.TransformadoresDO transformador: transformadores){
+                for(TransformadoresDO transformador: transformadores){
                     BAimagenTransformador = transformador.getImagen(); //Get transformador image
                     bitmap = BitmapFactory.decodeByteArray(BAimagenTransformador, 0, BAimagenTransformador.length);
-
                     //Rota la imagen para que se vea normal
-
                     float degrees = 90;//rotation degree
                     Matrix matrix = new Matrix();
                     matrix.setRotate(degrees);
                     bOutput = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
-
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            ivFoto.setImageBitmap(bOutput);
+                            //print("Foto Cambiada");
+                            //ivFoto.setImageBitmap(bOutput);
                         }
                     });
-
                 }
+                //Fuera del for
+
             }
         }).start();
+
+        //Cuando acabe que se haga el intent a maps para que se hayan pasado todos los transformadores
+
+        print("Llegue al return");
+
     }
 
     public void setSpinners(){
@@ -231,10 +267,18 @@ public class MainActivity extends EasyLocationAppCompatActivity implements Adapt
                 break;
 
             case R.id.btnMap:
-                Intent intent = new Intent(this, MapsActivity.class);
-                startActivity(intent);
+
+                    //readTransformadores();
+                    createIntent();
+
                 break;
         }
+    }
+
+    public void createIntent() {
+        Intent intent = new Intent(this, MapsActivity.class);
+        intent.putExtra("transformadores", transformadores.toArray());
+        startActivity(intent);
     }
 
     private void showToast(final String message) {
@@ -290,7 +334,7 @@ public class MainActivity extends EasyLocationAppCompatActivity implements Adapt
     }
 
     void print(String message){
-        System.out.println(message);
+        Log.i("hola" , message);
     }
 
     @Override

@@ -7,13 +7,14 @@ import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBIndexRan
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBRangeKey;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBTable;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 @DynamoDBTable(tableName = "transformadores-mobilehub-49749366-Transformadores")
 
-public class TransformadoresDO {
+public class TransformadoresDO implements Serializable{
     private String _userId;
     private String _itemId;
     private Double _capacidad;
