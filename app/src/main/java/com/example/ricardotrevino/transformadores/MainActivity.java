@@ -267,9 +267,12 @@ public class MainActivity extends EasyLocationAppCompatActivity implements Adapt
                 break;
 
             case R.id.btnMap:
-
-                    //readTransformadores();
+                if(!isFinishing()){
+                    print("Not finishing");
                     createIntent();
+                }else{
+                    print("Finishing");
+                }
 
                 break;
         }
