@@ -140,6 +140,7 @@ public class MainActivity extends EasyLocationAppCompatActivity implements Adapt
                 dynamoDBMapper.save(transformador);
                 // Item saved
                 showToast("Información Guardada");
+                resetValues();
             }
         }).start();
     }
@@ -252,6 +253,8 @@ public class MainActivity extends EasyLocationAppCompatActivity implements Adapt
         latitudeValue = (float) 0;
         longitudeValue = (float) 0;
         ivFoto = (ImageView)findViewById(R.id.ivFoto);
+        ivFoto.setImageResource(android.R.color.transparent);
+
 
     }
 
@@ -314,7 +317,7 @@ public class MainActivity extends EasyLocationAppCompatActivity implements Adapt
 
     @Override
     public void onLocationReceived(Location location) {
-        showToast(location.getLatitude() + "," + location.getLongitude());
+        //showToast(location.getLatitude() + "," + location.getLongitude());
         latitudeValue = (float)location.getLatitude();
         longitudeValue = (float)location.getLongitude();
         System.out.println("Esto es lat long: " + latitudeValue + " " + longitudeValue);
@@ -395,5 +398,18 @@ public class MainActivity extends EasyLocationAppCompatActivity implements Adapt
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    public void resetValues(){
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                etMarca.setText("");
+                etCapacidad.setText("");
+                etNumSerie.setText("");
+                ivFoto.setImageResource(android.R.color.transparent);
+            }
+        });
+
     }
 }
