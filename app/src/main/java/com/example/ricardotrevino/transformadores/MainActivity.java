@@ -34,6 +34,7 @@ import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 
 import java.io.ByteArrayOutputStream;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -43,21 +44,21 @@ import com.akhgupta.easylocation.EasyLocationRequestBuilder;
 import com.google.android.gms.location.LocationRequest;
 
 
-public class MainActivity extends EasyLocationAppCompatActivity implements AdapterView.OnItemSelectedListener, View.OnClickListener{
+public class MainActivity extends EasyLocationAppCompatActivity implements AdapterView.OnItemSelectedListener, View.OnClickListener, Serializable{
 
     DynamoDBMapper dynamoDBMapper;
     Spinner spinnerTipo, spinnerPoste, spinnerVoltaje;
     ArrayAdapter<String> adapterTipo, adapterPoste, adapterVoltaje;
     String TipoValue, PosteValue, VoltajeValue;
     EditText etMarca, etCapacidad, etNumSerie;
-    Button btnGuardar, btnFoto, btnMapa;
+    Button btnGuardar, btnFoto, btnMapa2;
     Float latitudeValue, longitudeValue;
     ImageView ivFoto;
     byte[] byteArray;
     Bitmap bitmap;
     Bitmap bOutput;
     List<com.amazonaws.models.nosql.TransformadoresDO> transformadores;
-
+    ArrayList<TransformadoresDO> lista;
     MapsActivity mapsActivity;
     static final int REQUEST_IMAGE_CAPTURE = 1;
 
@@ -89,11 +90,13 @@ public class MainActivity extends EasyLocationAppCompatActivity implements Adapt
                 .awsConfiguration(configuration)
                 .build();
 
+        /*
         try {
             readTransformadores();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        */
     }
 
     @Override
@@ -101,11 +104,13 @@ public class MainActivity extends EasyLocationAppCompatActivity implements Adapt
         //Pide los transformadores
         super.onPostResume();
         print("OnPostResume");
+        /*
         try {
             readTransformadores();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        */
     }
 
     public static MainActivity getInstance(){
@@ -147,11 +152,19 @@ public class MainActivity extends EasyLocationAppCompatActivity implements Adapt
                 print("Estoy en el run");
                 DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
                 transformadores =  dynamoDBMapper.scan(TransformadoresDO.class, scanExpression);
+
+                lista = new ArrayList<TransformadoresDO>();
+
                 print("Este es el tamaño de resultados: " + Integer.toString(transformadores.size()));
                 print("Esto tiene Transformadores al hacer el scan: " +  transformadores);
                 int cont  = 0;
                 byte[] BAimagenTransformador;
+
                 for(TransformadoresDO transformador: transformadores){
+
+                    lista.add(transformador);
+
+                    /*
                     BAimagenTransformador = transformador.getImagen(); //Get transformador image
                     bitmap = BitmapFactory.decodeByteArray(BAimagenTransformador, 0, BAimagenTransformador.length);
                     //Rota la imagen para que se vea normal
@@ -166,7 +179,9 @@ public class MainActivity extends EasyLocationAppCompatActivity implements Adapt
                             //ivFoto.setImageBitmap(bOutput);
                         }
                     });
+                    */
                 }
+                print("Esto tiene la lista: " + lista.size());
                 //Fuera del for
 
             }
@@ -232,8 +247,8 @@ public class MainActivity extends EasyLocationAppCompatActivity implements Adapt
         btnGuardar.setOnClickListener(this);
         btnFoto = (Button)findViewById(R.id.btnFoto);
         btnFoto.setOnClickListener(this);
-        btnMapa = (Button)findViewById(R.id.btnMap);
-        btnMapa.setOnClickListener(this);
+        btnMapa2 = (Button)findViewById(R.id.btnMap2);
+        btnMapa2.setOnClickListener(this);
         latitudeValue = (float) 0;
         longitudeValue = (float) 0;
         ivFoto = (ImageView)findViewById(R.id.ivFoto);
@@ -266,21 +281,15 @@ public class MainActivity extends EasyLocationAppCompatActivity implements Adapt
                 tomarFoto();
                 break;
 
-            case R.id.btnMap:
-                if(!isFinishing()){
-                    print("Not finishing");
-                    createIntent();
-                }else{
-                    print("Finishing");
-                }
+            case R.id.btnMap2:
 
+                createIntent();
                 break;
         }
     }
 
     public void createIntent() {
-        Intent intent = new Intent(this, MapsActivity.class);
-        intent.putExtra("transformadores", transformadores.toArray());
+        Intent intent = new Intent(this, MapsActivity2.class);
         startActivity(intent);
     }
 

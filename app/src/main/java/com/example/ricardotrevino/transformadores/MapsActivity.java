@@ -10,7 +10,6 @@ import android.location.LocationManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.amazonaws.models.nosql.TransformadoresDO;
@@ -29,6 +28,8 @@ import java.util.List;
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, LocationListener {
 
     private GoogleMap mMap;
+    MainActivity mainActivity = new MainActivity();
+
     Float latitudeValue, longitudeValue;
     String numSerie, marca;
     List<com.amazonaws.models.nosql.TransformadoresDO> resultados = new ArrayList<com.amazonaws.models.nosql.TransformadoresDO>();
@@ -39,29 +40,37 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_maps);
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
         System.out.println("OnCreate Map");
+        setContentView(R.layout.activity_maps);
+        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.mapa);
+        assert mapFragment != null;
+        mapFragment.getMapAsync(this);
 
 
         Intent intent = getIntent();
-        objeto = (Object[]) intent.getSerializableExtra("transformadores"); //Obtiene los transformadores
-
+        Bundle args = intent.getBundleExtra("bundle");
+        ArrayList<TransformadoresDO> lista = (ArrayList<TransformadoresDO>)args.getSerializable("lista");
+        //Obtiene los transformadores
+        //objeto = (Object[]) intent.getSerializableExtra("transformadores");
+        System.out.println("ESTO ES LO QUE TIENE LA LISTA: " + lista.size());
+        //MainActivity.getInstance().print("Esto es lo que saqué de resultados: " + resultados);
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
             locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this); //You can also use LocationManager.GPS_PROVIDER and LocationManager.PASSIVE_PROVIDER
         }
+
 
     }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
         System.out.println("Map Ready");
+        //mainActivity.print("Metodo desde Main");
         mMap = googleMap;
 
-
+        /*
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             Toast.makeText(this, "Permiso Negado", Toast.LENGTH_SHORT).show();
             mMap.setMyLocationEnabled(false);
@@ -73,25 +82,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         }
 
-
-        getValuesAndPlaceMarkers();
-
-    }
-
-
-    public void getValuesAndPlaceMarkers(){
         for(int i = 0; i < objeto.length; i++){
             TransformadoresDO transformador = (TransformadoresDO) objeto[i];
             System.out.println(transformador.getLatitude());
             latitudeValue = transformador.getLatitude().floatValue(); //Get transformador lat
-            longitudeValue = transformador.getLongitude().floatValue(); //Get transformador lat
+            longitudeValue = transformador.getLongitude().floatValue(); //Get transformador long
             marca = transformador.getMarca();
-            Log.i("Map", latitudeValue.toString() + " " + longitudeValue.toString());
-            //LatLng marker = new LatLng(latitudeValue, longitudeValue);
-            //mMap.addMarker(new MarkerOptions().position(marker).title(marca));
+            LatLng marker = new LatLng(latitudeValue, longitudeValue);
+            mMap.addMarker(new MarkerOptions().position(marker).title(marca));
         }
+        */
+
     }
-    
+
 
     @Override
     public void onLocationChanged(Location location) {
@@ -116,4 +119,5 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onProviderDisabled(String provider) {
 
     }
+
 }

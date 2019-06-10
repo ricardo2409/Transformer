@@ -12,10 +12,10 @@
         android:orientation="vertical">
 
         <Button
-            android:id="@+id/btnMap"
+            android:id="@+id/btnMap2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Mapa" />
+            android:text="Mapa2" />
 
         <LinearLayout
             android:layout_width="match_parent"

@@ -12,4 +12,5 @@
         <item>Madera</item>
         <item>Metal</item>
     </string-array>
+    <string name="title_activity_maps2">Map</string>
 </resources>
