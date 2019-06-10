@@ -3,6 +3,9 @@ package com.example.ricardotrevino.transformadores;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -10,6 +13,10 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.amazonaws.auth.AWSCredentialsProvider;
@@ -25,8 +32,12 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,16 +53,20 @@ public class MapsActivity2 extends FragmentActivity implements OnMapReadyCallbac
     List<com.amazonaws.models.nosql.TransformadoresDO> transformadores;
     ArrayList<com.amazonaws.models.nosql.TransformadoresDO> lista;
     Float latitudeValue, longitudeValue;
-    String numSerie, marca;
+    String numSerie, marca, capacidad;
     LocationManager locationManager;
     LatLng latLng;
     private final int REQUEST_LOCATION_PERMISSION = 1;
-
+    byte[] BAimagenTransformador;
+    Bitmap bitmap, bOutput;
+    //InfoWindow
+    ImageView ivInfo;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps2);
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        ivInfo = (ImageView)findViewById(R.id.ivInfo);
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -193,7 +208,25 @@ public class MapsActivity2 extends FragmentActivity implements OnMapReadyCallbac
         }else{
             mMap.setMyLocationEnabled(true);
         }
+        mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
+            @Override
+            public View getInfoWindow(Marker marker) {
+                return null;
+            }
 
+            @Override
+            public View getInfoContents(Marker marker) {
+                View v = getLayoutInflater().inflate(R.layout.custominfo, null);
+
+                TextView tvMarca = (TextView)v.findViewById(R.id.tvMarcaInfo);
+                TextView tvNumSerie = (TextView)v.findViewById(R.id.tvNumSerieInfo);
+                tvMarca.setText(marker.getTitle());
+                tvNumSerie.setText(marker.getSnippet());
+
+
+                return v;
+            }
+        });
 
 
 
@@ -219,14 +252,28 @@ public class MapsActivity2 extends FragmentActivity implements OnMapReadyCallbac
 
                 runOnUiThread(new Runnable() {
                     public void run() {//Crea los markers en el mapa
+
                         for(int i = 0; i < lista.size(); i++){
                             com.amazonaws.models.nosql.TransformadoresDO transformador = (com.amazonaws.models.nosql.TransformadoresDO) lista.get(i);
                             System.out.println(transformador.getLatitude());
                             latitudeValue = transformador.getLatitude().floatValue(); //Get transformador lat
                             longitudeValue = transformador.getLongitude().floatValue(); //Get transformador long
                             marca = transformador.getMarca();
+                            capacidad = transformador.getCapacidad().toString();
+                            numSerie = transformador.getNumserie().toString();
+
                             LatLng marker = new LatLng(latitudeValue, longitudeValue);
-                            mMap.addMarker(new MarkerOptions().position(marker).title(marca));
+                            BAimagenTransformador = transformador.getImagen(); //Get transformador image
+                            bitmap = BitmapFactory.decodeByteArray(BAimagenTransformador, 0, BAimagenTransformador.length);
+                            //Rota la imagen para que se vea normal
+                            float degrees = 90;//rotation degree
+                            Matrix matrix = new Matrix();
+                            matrix.setRotate(degrees);
+                            bOutput = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+                            //InfoWIndow
+
+
+                            mMap.addMarker(new MarkerOptions().position(marker).title(marca).snippet(numSerie).icon(BitmapDescriptorFactory.fromBitmap(bOutput)));
                         }
                     }
                 });
