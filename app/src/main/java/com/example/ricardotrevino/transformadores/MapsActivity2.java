@@ -45,7 +45,7 @@ import java.util.List;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 
-public class MapsActivity2 extends FragmentActivity implements OnMapReadyCallback {
+public class MapsActivity2 extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnInfoWindowClickListener {
 
     private GoogleMap mMap;
     Object[] objeto;
@@ -201,7 +201,7 @@ public class MapsActivity2 extends FragmentActivity implements OnMapReadyCallbac
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-
+        mMap.setOnInfoWindowClickListener(this);
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
             return;
@@ -217,10 +217,9 @@ public class MapsActivity2 extends FragmentActivity implements OnMapReadyCallbac
             @Override
             public View getInfoContents(Marker marker) {
                 View v = getLayoutInflater().inflate(R.layout.custominfo, null);
-
                 ImageView ivFoto = (ImageView)v.findViewById(R.id.ivInfo);
-
                 String id = marker.getSnippet();
+                //Get transformador image with marker id
                 for(int i = 0; i < lista.size(); i++) {
                     com.amazonaws.models.nosql.TransformadoresDO transformador = (com.amazonaws.models.nosql.TransformadoresDO) lista.get(i);
                     String transformadorID = transformador.getUserId();
@@ -238,7 +237,6 @@ public class MapsActivity2 extends FragmentActivity implements OnMapReadyCallbac
                         System.out.println("No es el mismo");
                     }
                 }
-
                 TextView tvMarca = (TextView)v.findViewById(R.id.tvMarcaInfo);
                 TextView tvNumSerie = (TextView)v.findViewById(R.id.tvNumSerieInfo);
                 TextView tvCapacidad = (TextView)v.findViewById(R.id.tvCapacidad);
@@ -256,9 +254,6 @@ public class MapsActivity2 extends FragmentActivity implements OnMapReadyCallbac
                 return v;
             }
         });
-
-
-
     }
 
     public void readTransformadores() throws InterruptedException {
@@ -319,4 +314,21 @@ public class MapsActivity2 extends FragmentActivity implements OnMapReadyCallbac
         Log.i("hola" , message);
     }
 
+    @Override
+    public void onInfoWindowClick(Marker marker) {
+        for(int i = 0; i < lista.size(); i++) {
+            String id = marker.getSnippet();
+            com.amazonaws.models.nosql.TransformadoresDO transformador = (com.amazonaws.models.nosql.TransformadoresDO) lista.get(i);
+            String transformadorID = transformador.getUserId();
+            if(id.equals(transformadorID)){
+                System.out.println("Es el mismo Click");
+                BAimagenTransformador = transformador.getImagen(); //Get transformador image Byte Array
+                Intent intent = new Intent(this, ImageActivity.class);
+                intent.putExtra("foto", BAimagenTransformador);
+                startActivity(intent);
+            }else{
+                System.out.println("No es el mismo click");
+            }
+        }
+    }
 }

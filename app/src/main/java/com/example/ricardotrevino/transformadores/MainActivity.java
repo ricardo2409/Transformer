@@ -197,7 +197,7 @@ public class MainActivity extends EasyLocationAppCompatActivity implements Adapt
     public void setSpinners(){
         String[] itemsTipo = {"Monofásico", "Trifásico"};
         String[] itemsVoltaje = {"13.8", "34.5"};
-        String[] itemsPoste = {"Madera", "Metal"};
+        String[] itemsPoste = {"Madera", "Metal", "Subterráneo"};
         spinnerTipo = (Spinner)findViewById(R.id.spinnerTipo);
         spinnerPoste = (Spinner)findViewById(R.id.spinnerPoste);
         spinnerVoltaje = (Spinner)findViewById(R.id.spinnerVoltaje);
