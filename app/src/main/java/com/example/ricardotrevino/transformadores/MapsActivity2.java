@@ -53,7 +53,7 @@ public class MapsActivity2 extends FragmentActivity implements OnMapReadyCallbac
     List<com.amazonaws.models.nosql.TransformadoresDO> transformadores;
     ArrayList<com.amazonaws.models.nosql.TransformadoresDO> lista;
     Float latitudeValue, longitudeValue;
-    String numSerie, marca, capacidad;
+    String numSerie, marca, capacidad, tipo, poste, voltaje;
     LocationManager locationManager;
     LatLng latLng;
     private final int REQUEST_LOCATION_PERMISSION = 1;
@@ -220,9 +220,18 @@ public class MapsActivity2 extends FragmentActivity implements OnMapReadyCallbac
 
                 TextView tvMarca = (TextView)v.findViewById(R.id.tvMarcaInfo);
                 TextView tvNumSerie = (TextView)v.findViewById(R.id.tvNumSerieInfo);
-                tvMarca.setText(marker.getTitle());
-                tvNumSerie.setText(marker.getSnippet());
-
+                TextView tvCapacidad = (TextView)v.findViewById(R.id.tvCapacidad);
+                TextView tvTipo = (TextView)v.findViewById(R.id.tvTipo);
+                TextView tvPoste = (TextView)v.findViewById(R.id.tvPoste);
+                TextView tvVoltaje = (TextView)v.findViewById(R.id.tvVoltaje);
+                String[] splitArray = marker.getTitle().split(",");
+                System.out.println("Esto tiene split: " + splitArray);
+                tvMarca.setText(splitArray[0]);
+                tvCapacidad.setText(splitArray[1]);
+                tvNumSerie.setText(splitArray[2]);
+                tvTipo.setText(splitArray[3]);
+                tvPoste.setText(splitArray[4]);
+                tvVoltaje.setText(splitArray[5]);
 
                 return v;
             }
@@ -259,8 +268,13 @@ public class MapsActivity2 extends FragmentActivity implements OnMapReadyCallbac
                             latitudeValue = transformador.getLatitude().floatValue(); //Get transformador lat
                             longitudeValue = transformador.getLongitude().floatValue(); //Get transformador long
                             marca = transformador.getMarca();
-                            capacidad = transformador.getCapacidad().toString();
-                            numSerie = transformador.getNumserie().toString();
+                            int auxCapacidad = transformador.getCapacidad().intValue();
+                            capacidad = Integer.toString(auxCapacidad);
+                            int auxNumSerie = transformador.getNumserie().intValue();//Double to int to string
+                            numSerie = Integer.toString(auxNumSerie);
+                            tipo = transformador.getTipo();
+                            poste = transformador.getPoste();
+                            voltaje = transformador.getVoltaje().toString();
 
                             LatLng marker = new LatLng(latitudeValue, longitudeValue);
                             BAimagenTransformador = transformador.getImagen(); //Get transformador image
@@ -272,8 +286,8 @@ public class MapsActivity2 extends FragmentActivity implements OnMapReadyCallbac
                             bOutput = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
                             //InfoWIndow
 
-
-                            mMap.addMarker(new MarkerOptions().position(marker).title(marca).snippet(numSerie).icon(BitmapDescriptorFactory.fromBitmap(bOutput)));
+                            //.icon(BitmapDescriptorFactory.fromBitmap(bOutput))
+                            mMap.addMarker(new MarkerOptions().position(marker).title(marca + "," + capacidad + "," + numSerie + "," + tipo + "," + poste + "," + voltaje ));
                         }
                     }
                 });
