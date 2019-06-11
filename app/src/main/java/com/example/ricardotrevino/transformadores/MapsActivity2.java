@@ -218,6 +218,27 @@ public class MapsActivity2 extends FragmentActivity implements OnMapReadyCallbac
             public View getInfoContents(Marker marker) {
                 View v = getLayoutInflater().inflate(R.layout.custominfo, null);
 
+                ImageView ivFoto = (ImageView)v.findViewById(R.id.ivInfo);
+
+                String id = marker.getSnippet();
+                for(int i = 0; i < lista.size(); i++) {
+                    com.amazonaws.models.nosql.TransformadoresDO transformador = (com.amazonaws.models.nosql.TransformadoresDO) lista.get(i);
+                    String transformadorID = transformador.getUserId();
+                    if(id.equals(transformadorID)){
+                        System.out.println("Es el mismo");
+                        BAimagenTransformador = transformador.getImagen(); //Get transformador image
+                        bitmap = BitmapFactory.decodeByteArray(BAimagenTransformador, 0, BAimagenTransformador.length);
+                        //Rota la imagen para que se vea normal
+                        float degrees = 90;//rotation degree
+                        Matrix matrix = new Matrix();
+                        matrix.setRotate(degrees);
+                        bOutput = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+                        ivFoto.setImageBitmap(bOutput);
+                    }else{
+                        System.out.println("No es el mismo");
+                    }
+                }
+
                 TextView tvMarca = (TextView)v.findViewById(R.id.tvMarcaInfo);
                 TextView tvNumSerie = (TextView)v.findViewById(R.id.tvNumSerieInfo);
                 TextView tvCapacidad = (TextView)v.findViewById(R.id.tvCapacidad);
@@ -232,7 +253,6 @@ public class MapsActivity2 extends FragmentActivity implements OnMapReadyCallbac
                 tvTipo.setText(splitArray[3]);
                 tvPoste.setText(splitArray[4]);
                 tvVoltaje.setText(splitArray[5]);
-
                 return v;
             }
         });
@@ -275,19 +295,13 @@ public class MapsActivity2 extends FragmentActivity implements OnMapReadyCallbac
                             tipo = transformador.getTipo();
                             poste = transformador.getPoste();
                             voltaje = transformador.getVoltaje().toString();
+                            String id = transformador.getUserId();
 
                             LatLng marker = new LatLng(latitudeValue, longitudeValue);
-                            BAimagenTransformador = transformador.getImagen(); //Get transformador image
-                            bitmap = BitmapFactory.decodeByteArray(BAimagenTransformador, 0, BAimagenTransformador.length);
-                            //Rota la imagen para que se vea normal
-                            float degrees = 90;//rotation degree
-                            Matrix matrix = new Matrix();
-                            matrix.setRotate(degrees);
-                            bOutput = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
                             //InfoWIndow
 
                             //.icon(BitmapDescriptorFactory.fromBitmap(bOutput))
-                            mMap.addMarker(new MarkerOptions().position(marker).title(marca + "," + capacidad + "," + numSerie + "," + tipo + "," + poste + "," + voltaje ));
+                            mMap.addMarker(new MarkerOptions().position(marker).title(marca + "," + capacidad + "," + numSerie + "," + tipo + "," + poste + "," + voltaje ).snippet(id));
                         }
                     }
                 });
