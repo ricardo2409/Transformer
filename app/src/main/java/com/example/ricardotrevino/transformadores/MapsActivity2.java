@@ -16,6 +16,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -225,6 +226,7 @@ public class MapsActivity2 extends FragmentActivity implements OnMapReadyCallbac
                     System.out.println("Transformador");
 
                     View v = getLayoutInflater().inflate(R.layout.custominfo, null);
+                    v.setLayoutParams(new RelativeLayout.LayoutParams(650, RelativeLayout.LayoutParams.WRAP_CONTENT));
                     ImageView ivFoto = (ImageView)v.findViewById(R.id.ivInfo);
                     String id = marker.getSnippet();
                     TextView tvMarca = (TextView)v.findViewById(R.id.tvMarcaInfo);
@@ -264,6 +266,7 @@ public class MapsActivity2 extends FragmentActivity implements OnMapReadyCallbac
                     System.out.println("Indicador");
 
                     View v = getLayoutInflater().inflate(R.layout.custominfoindicador, null);
+                    v.setLayoutParams(new RelativeLayout.LayoutParams(200, RelativeLayout.LayoutParams.WRAP_CONTENT));
                     ImageView ivFoto = (ImageView)v.findViewById(R.id.ivInfoIndicador);
                     //Get transformador image with marker id
                     String id = marker.getSnippet();
