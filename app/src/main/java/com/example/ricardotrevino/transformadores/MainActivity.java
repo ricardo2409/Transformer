@@ -18,6 +18,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.util.Log;
 
@@ -43,14 +44,17 @@ import com.akhgupta.easylocation.EasyLocationRequest;
 import com.akhgupta.easylocation.EasyLocationRequestBuilder;
 import com.google.android.gms.location.LocationRequest;
 
+import org.w3c.dom.Text;
+
 
 public class MainActivity extends EasyLocationAppCompatActivity implements AdapterView.OnItemSelectedListener, View.OnClickListener, Serializable{
 
     DynamoDBMapper dynamoDBMapper;
-    Spinner spinnerTipo, spinnerPoste, spinnerVoltaje;
-    ArrayAdapter<String> adapterTipo, adapterPoste, adapterVoltaje;
-    String TipoValue, PosteValue, VoltajeValue;
+    Spinner spinnerTipo, spinnerPoste, spinnerVoltaje, spinnerAparato;
+    ArrayAdapter<String> adapterTipo, adapterPoste, adapterVoltaje, adapterAparato;
+    String TipoValue, PosteValue, VoltajeValue, AparatoValue;
     EditText etMarca, etCapacidad, etNumSerie;
+    TextView tvTipo, tvMarca, tvNumSerie, tvPoste, tvVoltaje, tvCapacidad;
     Button btnGuardar, btnFoto, btnMapa2;
     Float latitudeValue, longitudeValue;
     ImageView ivFoto;
@@ -134,6 +138,35 @@ public class MainActivity extends EasyLocationAppCompatActivity implements Adapt
         print("Esto tiene lat y long antes de mandarlos: " + latitudeValue +  " " + longitudeValue);
         transformador.setLatitude((double)latitudeValue);//Valor del gps
         transformador.setLongitude((double)longitudeValue);//Valor del gps
+        transformador.setAparato("Transformador");
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                dynamoDBMapper.save(transformador);
+                // Item saved
+                showToast("Información Guardada");
+                resetValues();
+            }
+        }).start();
+    }
+    public void createIndicador(){
+
+        final com.amazonaws.models.nosql.TransformadoresDO transformador = new com.amazonaws.models.nosql.TransformadoresDO();
+        String uuid= UUID.randomUUID().toString();//unique ids
+        String uuid2= UUID.randomUUID().toString();
+        transformador.setUserId(uuid);
+        transformador.setItemId(uuid2);
+        transformador.setCapacidad(-1.0);
+        transformador.setPoste("-1");
+        transformador.setVoltaje(Double.valueOf("-1"));
+        transformador.setNumserie(-1.0);
+        transformador.setMarca("-1");
+        transformador.setTipo("-1");
+        transformador.setImagen(byteArray);
+        print("Esto tiene lat y long antes de mandarlos: " + latitudeValue +  " " + longitudeValue);
+        transformador.setLatitude((double)latitudeValue);//Valor del gps
+        transformador.setLongitude((double)longitudeValue);//Valor del gps
+        transformador.setAparato("Indicador de Falla");
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -145,62 +178,20 @@ public class MainActivity extends EasyLocationAppCompatActivity implements Adapt
         }).start();
     }
 
-    public void readTransformadores() throws InterruptedException {
-        print("readTransformadores");
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                print("Estoy en el run");
-                DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
-                transformadores =  dynamoDBMapper.scan(TransformadoresDO.class, scanExpression);
-
-                lista = new ArrayList<TransformadoresDO>();
-
-                print("Este es el tamaño de resultados: " + Integer.toString(transformadores.size()));
-                print("Esto tiene Transformadores al hacer el scan: " +  transformadores);
-                int cont  = 0;
-                byte[] BAimagenTransformador;
-
-                for(TransformadoresDO transformador: transformadores){
-
-                    lista.add(transformador);
-
-                    /*
-                    BAimagenTransformador = transformador.getImagen(); //Get transformador image
-                    bitmap = BitmapFactory.decodeByteArray(BAimagenTransformador, 0, BAimagenTransformador.length);
-                    //Rota la imagen para que se vea normal
-                    float degrees = 90;//rotation degree
-                    Matrix matrix = new Matrix();
-                    matrix.setRotate(degrees);
-                    bOutput = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            //print("Foto Cambiada");
-                            //ivFoto.setImageBitmap(bOutput);
-                        }
-                    });
-                    */
-                }
-                print("Esto tiene la lista: " + lista.size());
-                //Fuera del for
-
-            }
-        }).start();
-
-        //Cuando acabe que se haga el intent a maps para que se hayan pasado todos los transformadores
-
-        print("Llegue al return");
-
-    }
 
     public void setSpinners(){
+        String[] itemsAparato = {"Transformador", "Indicador de Falla"};
         String[] itemsTipo = {"Monofásico", "Trifásico"};
         String[] itemsVoltaje = {"13.8", "34.5"};
-        String[] itemsPoste = {"Madera", "Metal", "Subterráneo"};
+        String[] itemsPoste = {"Madera", "Concreto", "Subterráneo"};
+        spinnerAparato = (Spinner)findViewById(R.id.spinnerAparato);
         spinnerTipo = (Spinner)findViewById(R.id.spinnerTipo);
         spinnerPoste = (Spinner)findViewById(R.id.spinnerPoste);
         spinnerVoltaje = (Spinner)findViewById(R.id.spinnerVoltaje);
+
+        adapterAparato = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, itemsAparato);
+        spinnerAparato.setAdapter(adapterAparato);
+        spinnerAparato.setOnItemSelectedListener(this);
 
         adapterTipo = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, itemsTipo);
         spinnerTipo.setAdapter(adapterTipo);
@@ -231,6 +222,47 @@ public class MainActivity extends EasyLocationAppCompatActivity implements Adapt
             VoltajeValue = parent.getSelectedItem().toString();
 
         }
+        else if(parent.getId() == R.id.spinnerAparato)
+        {
+            AparatoValue = parent.getSelectedItem().toString();
+            if(AparatoValue.equals("Indicador de Falla")){
+                //Esconde lo de transformador
+                hideTransformador();
+            }else{
+                showTransformador();
+            }
+
+        }
+    }
+    public void hideTransformador() {
+        tvTipo.setVisibility(View.GONE);
+        tvPoste.setVisibility(View.GONE);
+        tvVoltaje.setVisibility(View.GONE);
+        tvVoltaje.setVisibility(View.GONE);
+        tvNumSerie.setVisibility(View.GONE);
+        tvMarca.setVisibility(View.GONE);
+        tvCapacidad.setVisibility(View.GONE);
+        spinnerVoltaje.setVisibility(View.GONE);
+        spinnerPoste.setVisibility(View.GONE);
+        spinnerTipo.setVisibility(View.GONE);
+        etNumSerie.setVisibility(View.GONE);
+        etCapacidad.setVisibility(View.GONE);
+        etMarca.setVisibility(View.GONE);
+    }
+    public void showTransformador(){
+        tvTipo.setVisibility(View.VISIBLE);
+        tvPoste.setVisibility(View.VISIBLE);
+        tvVoltaje.setVisibility(View.VISIBLE);
+        tvVoltaje.setVisibility(View.VISIBLE);
+        tvNumSerie.setVisibility(View.VISIBLE);
+        tvMarca.setVisibility(View.VISIBLE);
+        tvCapacidad.setVisibility(View.VISIBLE);
+        spinnerVoltaje.setVisibility(View.VISIBLE);
+        spinnerPoste.setVisibility(View.VISIBLE);
+        spinnerTipo.setVisibility(View.VISIBLE);
+        etNumSerie.setVisibility(View.VISIBLE);
+        etCapacidad.setVisibility(View.VISIBLE);
+        etMarca.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -254,6 +286,14 @@ public class MainActivity extends EasyLocationAppCompatActivity implements Adapt
         longitudeValue = (float) 0;
         ivFoto = (ImageView)findViewById(R.id.ivFoto);
         ivFoto.setImageResource(android.R.color.transparent);
+        tvCapacidad = (TextView)findViewById(R.id.tvCapacidad);
+        tvMarca = (TextView)findViewById(R.id.tvMarca);
+        tvNumSerie = (TextView)findViewById(R.id.tvNumSerie);
+        tvVoltaje = (TextView)findViewById(R.id.tvVoltaje);
+        tvPoste = (TextView)findViewById(R.id.tvPoste);
+        tvTipo = (TextView)findViewById(R.id.tvTipo);
+
+
 
 
     }
@@ -273,7 +313,9 @@ public class MainActivity extends EasyLocationAppCompatActivity implements Adapt
     public void onClick(View v) {
         switch(v.getId()) {
             case R.id.btnGuardar:
-                if(checkEditTexts()){
+                if(checkEditTexts() && AparatoValue.equals("Transformador")){
+                    requestSingleLocation();
+                }else if(AparatoValue.equals("Indicador de Falla")){
                     requestSingleLocation();
                 }else{
                     showToast("Campo Vacío");
@@ -321,7 +363,12 @@ public class MainActivity extends EasyLocationAppCompatActivity implements Adapt
         latitudeValue = (float)location.getLatitude();
         longitudeValue = (float)location.getLongitude();
         System.out.println("Esto es lat long: " + latitudeValue + " " + longitudeValue);
-        createTransformador();//Crea el transformador despues de tener la location
+        if(AparatoValue.equals("Transformador")){
+            createTransformador();//Crea el transformador despues de tener la location
+        }else if(AparatoValue.equals("Indicador de Falla")){
+            createIndicador();
+        }
+
         //readTransformadores();
     }
 

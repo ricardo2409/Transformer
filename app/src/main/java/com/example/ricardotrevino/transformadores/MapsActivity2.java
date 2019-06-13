@@ -26,6 +26,7 @@ import com.amazonaws.mobile.client.AWSStartupResult;
 import com.amazonaws.mobile.config.AWSConfiguration;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBMapper;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBScanExpression;
+import com.amazonaws.models.nosql.TransformadoresDO;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -263,12 +264,12 @@ public class MapsActivity2 extends FragmentActivity implements OnMapReadyCallbac
             public void run() {
                 print("Estoy en el run");
                 DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
-                transformadores =  dynamoDBMapper.scan(com.amazonaws.models.nosql.TransformadoresDO.class, scanExpression);
-                lista = new ArrayList<com.amazonaws.models.nosql.TransformadoresDO>();
+                transformadores =  dynamoDBMapper.scan(TransformadoresDO.class, scanExpression);
+                lista = new ArrayList<TransformadoresDO>();
                 print("Este es el tamaño de resultados: " + Integer.toString(transformadores.size()));
                 print("Esto tiene Transformadores al hacer el scan: " +  transformadores);
 
-                for(com.amazonaws.models.nosql.TransformadoresDO transformador: transformadores){
+                for(TransformadoresDO transformador: transformadores){
                     lista.add(transformador);
                 }
                 print("Esto tiene la lista: " + lista.size());
@@ -278,7 +279,7 @@ public class MapsActivity2 extends FragmentActivity implements OnMapReadyCallbac
                     public void run() {//Crea los markers en el mapa
 
                         for(int i = 0; i < lista.size(); i++){
-                            com.amazonaws.models.nosql.TransformadoresDO transformador = (com.amazonaws.models.nosql.TransformadoresDO) lista.get(i);
+                            TransformadoresDO transformador = (TransformadoresDO) lista.get(i);
                             System.out.println(transformador.getLatitude());
                             latitudeValue = transformador.getLatitude().floatValue(); //Get transformador lat
                             longitudeValue = transformador.getLongitude().floatValue(); //Get transformador long
@@ -291,11 +292,7 @@ public class MapsActivity2 extends FragmentActivity implements OnMapReadyCallbac
                             poste = transformador.getPoste();
                             voltaje = transformador.getVoltaje().toString();
                             String id = transformador.getUserId();
-
                             LatLng marker = new LatLng(latitudeValue, longitudeValue);
-                            //InfoWIndow
-
-                            //.icon(BitmapDescriptorFactory.fromBitmap(bOutput))
                             mMap.addMarker(new MarkerOptions().position(marker).title(marca + "," + capacidad + "," + numSerie + "," + tipo + "," + poste + "," + voltaje ).snippet(id));
                         }
                     }

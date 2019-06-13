@@ -24,6 +24,25 @@
             android:orientation="horizontal">
 
             <TextView
+                android:id="@+id/tvAparato"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Aparato:" />
+
+            <Spinner
+                android:id="@+id/spinnerAparato"
+                android:layout_width="215dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
                 android:id="@+id/tvTipo"
                 android:layout_width="100dp"
                 android:layout_height="wrap_content"

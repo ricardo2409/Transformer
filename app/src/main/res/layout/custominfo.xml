@@ -37,7 +37,8 @@
                 android:id="@+id/tvMarcaInfo"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1" />
+                android:layout_weight="1"
+                android:gravity="right"/>
 
         </LinearLayout>
 
@@ -59,7 +60,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                />
+                android:gravity="right" />
 
         </LinearLayout>
         <LinearLayout
@@ -79,7 +80,8 @@
                 android:id="@+id/tvCapacidad"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1" />
+                android:layout_weight="1"
+                android:gravity="right"/>
 
         </LinearLayout>
 
@@ -101,7 +103,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                />
+                android:gravity="right"/>
 
         </LinearLayout>
         <LinearLayout
@@ -121,7 +123,8 @@
                 android:id="@+id/tvPoste"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1" />
+                android:layout_weight="1"
+                android:gravity="right"/>
 
         </LinearLayout>
 
@@ -142,7 +145,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                />
+                android:gravity="right"/>
 
         </LinearLayout>
     </LinearLayout>
