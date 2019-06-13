@@ -54,7 +54,7 @@ public class MapsActivity2 extends FragmentActivity implements OnMapReadyCallbac
     List<com.amazonaws.models.nosql.TransformadoresDO> transformadores;
     ArrayList<com.amazonaws.models.nosql.TransformadoresDO> lista;
     Float latitudeValue, longitudeValue;
-    String numSerie, marca, capacidad, tipo, poste, voltaje;
+    String numSerie, marca, capacidad, tipo, poste, voltaje, aparato;
     LocationManager locationManager;
     LatLng latLng;
     private final int REQUEST_LOCATION_PERMISSION = 1;
@@ -164,7 +164,7 @@ public class MapsActivity2 extends FragmentActivity implements OnMapReadyCallbac
         }
 
         try {
-            readTransformadores();
+            readAparatos();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -217,48 +217,80 @@ public class MapsActivity2 extends FragmentActivity implements OnMapReadyCallbac
 
             @Override
             public View getInfoContents(Marker marker) {
-                View v = getLayoutInflater().inflate(R.layout.custominfo, null);
-                ImageView ivFoto = (ImageView)v.findViewById(R.id.ivInfo);
-                String id = marker.getSnippet();
-                //Get transformador image with marker id
-                for(int i = 0; i < lista.size(); i++) {
-                    com.amazonaws.models.nosql.TransformadoresDO transformador = (com.amazonaws.models.nosql.TransformadoresDO) lista.get(i);
-                    String transformadorID = transformador.getUserId();
-                    if(id.equals(transformadorID)){
-                        System.out.println("Es el mismo");
-                        BAimagenTransformador = transformador.getImagen(); //Get transformador image
-                        bitmap = BitmapFactory.decodeByteArray(BAimagenTransformador, 0, BAimagenTransformador.length);
-                        //Rota la imagen para que se vea normal
-                        float degrees = 90;//rotation degree
-                        Matrix matrix = new Matrix();
-                        matrix.setRotate(degrees);
-                        bOutput = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
-                        ivFoto.setImageBitmap(bOutput);
-                    }else{
-                        System.out.println("No es el mismo");
-                    }
-                }
-                TextView tvMarca = (TextView)v.findViewById(R.id.tvMarcaInfo);
-                TextView tvNumSerie = (TextView)v.findViewById(R.id.tvNumSerieInfo);
-                TextView tvCapacidad = (TextView)v.findViewById(R.id.tvCapacidad);
-                TextView tvTipo = (TextView)v.findViewById(R.id.tvTipo);
-                TextView tvPoste = (TextView)v.findViewById(R.id.tvPoste);
-                TextView tvVoltaje = (TextView)v.findViewById(R.id.tvVoltaje);
                 String[] splitArray = marker.getTitle().split(",");
-                System.out.println("Esto tiene split: " + splitArray);
-                tvMarca.setText(splitArray[0]);
-                tvCapacidad.setText(splitArray[1]);
-                tvNumSerie.setText(splitArray[2]);
-                tvTipo.setText(splitArray[3]);
-                tvPoste.setText(splitArray[4]);
-                tvVoltaje.setText(splitArray[5]);
-                return v;
+                if(splitArray[0].equals("Transformador")){
+                    View v = getLayoutInflater().inflate(R.layout.custominfo, null);
+                    ImageView ivFoto = (ImageView)v.findViewById(R.id.ivInfo);
+                    String id = marker.getSnippet();
+                    TextView tvMarca = (TextView)v.findViewById(R.id.tvMarcaInfo);
+                    TextView tvNumSerie = (TextView)v.findViewById(R.id.tvNumSerieInfo);
+                    TextView tvCapacidad = (TextView)v.findViewById(R.id.tvCapacidad);
+                    TextView tvTipo = (TextView)v.findViewById(R.id.tvTipo);
+                    TextView tvPoste = (TextView)v.findViewById(R.id.tvPoste);
+                    TextView tvVoltaje = (TextView)v.findViewById(R.id.tvVoltaje);
+
+                    System.out.println("Esto tiene split: " + splitArray);
+
+                    //Get transformador image with marker id
+                    for(int i = 0; i < lista.size(); i++) {
+                        com.amazonaws.models.nosql.TransformadoresDO transformador = (com.amazonaws.models.nosql.TransformadoresDO) lista.get(i);
+                        String transformadorID = transformador.getUserId();
+                        if(id.equals(transformadorID)){
+                            System.out.println("Es el mismo");
+                            BAimagenTransformador = transformador.getImagen(); //Get transformador image
+                            bitmap = BitmapFactory.decodeByteArray(BAimagenTransformador, 0, BAimagenTransformador.length);
+                            //Rota la imagen para que se vea normal
+                            float degrees = 90;//rotation degree
+                            Matrix matrix = new Matrix();
+                            matrix.setRotate(degrees);
+                            bOutput = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+                            ivFoto.setImageBitmap(bOutput);
+                        }else{
+                            System.out.println("No es el mismo");
+                        }
+                    }
+                    tvMarca.setText(splitArray[1]);
+                    tvCapacidad.setText(splitArray[2]);
+                    tvNumSerie.setText(splitArray[3]);
+                    tvTipo.setText(splitArray[4]);
+                    tvPoste.setText(splitArray[5]);
+                    tvVoltaje.setText(splitArray[6]);
+                    return v;
+
+                }else if(splitArray[0].equals("Indicador de Falla")){
+                    View v = getLayoutInflater().inflate(R.layout.custominfoindicador, null);
+                    ImageView ivFoto = (ImageView)v.findViewById(R.id.ivInfoIndicador);
+                    //Get transformador image with marker id
+                    String id = marker.getSnippet();
+
+                    for(int i = 0; i < lista.size(); i++) {
+                        com.amazonaws.models.nosql.TransformadoresDO transformador = (com.amazonaws.models.nosql.TransformadoresDO) lista.get(i);
+                        String transformadorID = transformador.getUserId();
+                        if(id.equals(transformadorID)){
+                            System.out.println("Es el mismo");
+                            BAimagenTransformador = transformador.getImagen(); //Get transformador image
+                            bitmap = BitmapFactory.decodeByteArray(BAimagenTransformador, 0, BAimagenTransformador.length);
+                            //Rota la imagen para que se vea normal
+                            float degrees = 90;//rotation degree
+                            Matrix matrix = new Matrix();
+                            matrix.setRotate(degrees);
+                            bOutput = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+                            ivFoto.setImageBitmap(bOutput);
+                        }else{
+                            System.out.println("No es el mismo");
+                        }
+                    }
+                    return v;
+                }else{
+                    return null;
+                }
+
             }
         });
     }
 
-    public void readTransformadores() throws InterruptedException {
-        print("readTransformadores");
+    public void readAparatos() throws InterruptedException {
+        print("readAparatos");
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -273,7 +305,6 @@ public class MapsActivity2 extends FragmentActivity implements OnMapReadyCallbac
                     lista.add(transformador);
                 }
                 print("Esto tiene la lista: " + lista.size());
-                //Fuera del for
 
                 runOnUiThread(new Runnable() {
                     public void run() {//Crea los markers en el mapa
@@ -281,6 +312,7 @@ public class MapsActivity2 extends FragmentActivity implements OnMapReadyCallbac
                         for(int i = 0; i < lista.size(); i++){
                             TransformadoresDO transformador = (TransformadoresDO) lista.get(i);
                             System.out.println(transformador.getLatitude());
+                            aparato = transformador.getAparato();
                             latitudeValue = transformador.getLatitude().floatValue(); //Get transformador lat
                             longitudeValue = transformador.getLongitude().floatValue(); //Get transformador long
                             marca = transformador.getMarca();
@@ -293,7 +325,12 @@ public class MapsActivity2 extends FragmentActivity implements OnMapReadyCallbac
                             voltaje = transformador.getVoltaje().toString();
                             String id = transformador.getUserId();
                             LatLng marker = new LatLng(latitudeValue, longitudeValue);
-                            mMap.addMarker(new MarkerOptions().position(marker).title(marca + "," + capacidad + "," + numSerie + "," + tipo + "," + poste + "," + voltaje ).snippet(id));
+                            if(aparato.equals("Transformador")){
+                                mMap.addMarker(new MarkerOptions().position(marker).title(aparato + "," + marca + "," + capacidad + "," + numSerie + "," + tipo + "," + poste + "," + voltaje ).snippet(id).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+                            }else if(aparato.equals("Transformador")){
+                                mMap.addMarker(new MarkerOptions().position(marker).title(aparato + "," + marca + "," + capacidad + "," + numSerie + "," + tipo + "," + poste + "," + voltaje ).snippet(id).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
+
+                            }
                         }
                     }
                 });
