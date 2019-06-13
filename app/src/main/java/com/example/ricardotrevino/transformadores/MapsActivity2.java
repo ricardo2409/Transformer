@@ -218,7 +218,12 @@ public class MapsActivity2 extends FragmentActivity implements OnMapReadyCallbac
             @Override
             public View getInfoContents(Marker marker) {
                 String[] splitArray = marker.getTitle().split(",");
-                if(splitArray[0].equals("Transformador")){
+                String auxAparato = splitArray[0];
+                System.out.println("Esto tiene auxaparato: " + auxAparato);
+
+                if(auxAparato.equals("Transformador")){
+                    System.out.println("Transformador");
+
                     View v = getLayoutInflater().inflate(R.layout.custominfo, null);
                     ImageView ivFoto = (ImageView)v.findViewById(R.id.ivInfo);
                     String id = marker.getSnippet();
@@ -228,9 +233,7 @@ public class MapsActivity2 extends FragmentActivity implements OnMapReadyCallbac
                     TextView tvTipo = (TextView)v.findViewById(R.id.tvTipo);
                     TextView tvPoste = (TextView)v.findViewById(R.id.tvPoste);
                     TextView tvVoltaje = (TextView)v.findViewById(R.id.tvVoltaje);
-
                     System.out.println("Esto tiene split: " + splitArray);
-
                     //Get transformador image with marker id
                     for(int i = 0; i < lista.size(); i++) {
                         com.amazonaws.models.nosql.TransformadoresDO transformador = (com.amazonaws.models.nosql.TransformadoresDO) lista.get(i);
@@ -257,7 +260,9 @@ public class MapsActivity2 extends FragmentActivity implements OnMapReadyCallbac
                     tvVoltaje.setText(splitArray[6]);
                     return v;
 
-                }else if(splitArray[0].equals("Indicador de Falla")){
+                }else if(auxAparato.equals("Indicador de Falla")){
+                    System.out.println("Indicador");
+
                     View v = getLayoutInflater().inflate(R.layout.custominfoindicador, null);
                     ImageView ivFoto = (ImageView)v.findViewById(R.id.ivInfoIndicador);
                     //Get transformador image with marker id
@@ -281,10 +286,9 @@ public class MapsActivity2 extends FragmentActivity implements OnMapReadyCallbac
                         }
                     }
                     return v;
-                }else{
-                    return null;
                 }
 
+                return null;
             }
         });
     }
@@ -313,6 +317,7 @@ public class MapsActivity2 extends FragmentActivity implements OnMapReadyCallbac
                             TransformadoresDO transformador = (TransformadoresDO) lista.get(i);
                             System.out.println(transformador.getLatitude());
                             aparato = transformador.getAparato();
+                            System.out.println("Esto es aparato: " + aparato);
                             latitudeValue = transformador.getLatitude().floatValue(); //Get transformador lat
                             longitudeValue = transformador.getLongitude().floatValue(); //Get transformador long
                             marca = transformador.getMarca();
@@ -325,12 +330,14 @@ public class MapsActivity2 extends FragmentActivity implements OnMapReadyCallbac
                             voltaje = transformador.getVoltaje().toString();
                             String id = transformador.getUserId();
                             LatLng marker = new LatLng(latitudeValue, longitudeValue);
+
                             if(aparato.equals("Transformador")){
                                 mMap.addMarker(new MarkerOptions().position(marker).title(aparato + "," + marca + "," + capacidad + "," + numSerie + "," + tipo + "," + poste + "," + voltaje ).snippet(id).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
-                            }else if(aparato.equals("Transformador")){
+                            }else if(aparato.equals("Indicador de Falla")){
                                 mMap.addMarker(new MarkerOptions().position(marker).title(aparato + "," + marca + "," + capacidad + "," + numSerie + "," + tipo + "," + poste + "," + voltaje ).snippet(id).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
-
                             }
+
+
                         }
                     }
                 });
