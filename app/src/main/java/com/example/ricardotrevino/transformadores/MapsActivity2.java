@@ -270,7 +270,7 @@ public class MapsActivity2 extends FragmentActivity implements OnMapReadyCallbac
                     System.out.println("Indicador");
 
                     View v = getLayoutInflater().inflate(R.layout.custominfoindicador, null);
-                    v.setLayoutParams(new RelativeLayout.LayoutParams(200, RelativeLayout.LayoutParams.WRAP_CONTENT));
+                    v.setLayoutParams(new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT));
                     ImageView ivFoto = (ImageView)v.findViewById(R.id.ivInfoIndicador);
                     //Get transformador image with marker id
                     String id = marker.getSnippet();
