@@ -63,6 +63,10 @@ public class MapsActivity2 extends FragmentActivity implements OnMapReadyCallbac
     Bitmap bitmap, bOutput;
     //InfoWindow
     ImageView ivInfo;
+    List<Marker> transformadorMarkers = new ArrayList<Marker>();
+    List<Marker> indicadorMarkers = new ArrayList<Marker>();
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -303,6 +307,7 @@ public class MapsActivity2 extends FragmentActivity implements OnMapReadyCallbac
             public void run() {
                 print("Estoy en el run");
                 DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
+                //dynamoDBMapper.load(TransformadoresDO.class, "101");
                 transformadores =  dynamoDBMapper.scan(TransformadoresDO.class, scanExpression);
                 lista = new ArrayList<TransformadoresDO>();
                 print("Este es el tamaño de resultados: " + Integer.toString(transformadores.size()));
@@ -335,12 +340,12 @@ public class MapsActivity2 extends FragmentActivity implements OnMapReadyCallbac
                             LatLng marker = new LatLng(latitudeValue, longitudeValue);
 
                             if(aparato.equals("Transformador")){
-                                mMap.addMarker(new MarkerOptions().position(marker).title(aparato + "," + marca + "," + capacidad + "," + numSerie + "," + tipo + "," + poste + "," + voltaje ).snippet(id).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+                                Marker transformadorMarker = mMap.addMarker(new MarkerOptions().position(marker).title(aparato + "," + marca + "," + capacidad + "," + numSerie + "," + tipo + "," + poste + "," + voltaje ).snippet(id).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+                                transformadorMarkers.add(transformadorMarker);
                             }else if(aparato.equals("Indicador de Falla")){
-                                mMap.addMarker(new MarkerOptions().position(marker).title(aparato + "," + marca + "," + capacidad + "," + numSerie + "," + tipo + "," + poste + "," + voltaje ).snippet(id).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
+                                Marker indicadorMarker = mMap.addMarker(new MarkerOptions().position(marker).title(aparato + "," + marca + "," + capacidad + "," + numSerie + "," + tipo + "," + poste + "," + voltaje ).snippet(id).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
+                                indicadorMarkers.add(indicadorMarker);
                             }
-
-
                         }
                     }
                 });
