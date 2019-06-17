@@ -1,17 +1,22 @@
 package com.example.ricardotrevino.transformadores;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.Matrix;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.support.v4.content.res.ResourcesCompat;
+import android.support.v7.content.res.AppCompatResources;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -38,6 +43,9 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.leinardi.android.speeddial.FabWithLabelView;
+import com.leinardi.android.speeddial.SpeedDialActionItem;
+import com.leinardi.android.speeddial.SpeedDialView;
 
 import org.w3c.dom.Text;
 
@@ -47,7 +55,9 @@ import java.util.List;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 
-public class MapsActivity2 extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnInfoWindowClickListener {
+import static com.example.ricardotrevino.transformadores.R.drawable.ic_filter_outline_white_18dp;
+
+public class MapsActivity2 extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnInfoWindowClickListener, View.OnClickListener {
 
     private GoogleMap mMap;
     Object[] objeto;
@@ -65,12 +75,14 @@ public class MapsActivity2 extends FragmentActivity implements OnMapReadyCallbac
     ImageView ivInfo;
     List<Marker> transformadorMarkers = new ArrayList<Marker>();
     List<Marker> indicadorMarkers = new ArrayList<Marker>();
-
+    private SpeedDialView mSpeedDialView;
+    private static final String TAG = MapsActivity2.class.getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps2);
+
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         ivInfo = (ImageView)findViewById(R.id.ivInfo);
 
@@ -167,6 +179,8 @@ public class MapsActivity2 extends FragmentActivity implements OnMapReadyCallbac
                 });
             }
         }
+
+        initSpeedDial(savedInstanceState == null); //Crea el menu del floating action button
 
         try {
             readAparatos();
@@ -378,6 +392,99 @@ public class MapsActivity2 extends FragmentActivity implements OnMapReadyCallbac
             }else{
                 System.out.println("No es el mismo click");
             }
+        }
+    }
+
+    @SuppressLint("ResourceAsColor")
+    private void initSpeedDial(boolean addActionItems) {
+        mSpeedDialView = findViewById(R.id.speedDial);
+        mSpeedDialView.setMainFabClosedDrawable(getDrawable(R.drawable.ic_filter_outline_white_18dp));
+        mSpeedDialView.setMainFabOpenedDrawable(getDrawable(R.drawable.ic_filter_outline_white_18dp));
+
+        //mSpeedDialView.setMainFabOpenedBackgroundColor(R.color.white);
+        if (addActionItems) {
+
+            Drawable TransformadoresDrawable = AppCompatResources.getDrawable(MapsActivity2.this, ic_filter_outline_white_18dp);
+            FabWithLabelView fabWithLabelView = mSpeedDialView.addActionItem(new SpeedDialActionItem.Builder(R.id
+                    .fab_transformadores, TransformadoresDrawable)
+                    .setFabImageTintColor(ResourcesCompat.getColor(getResources(), R.color.white, getTheme()))
+                    .setLabel("Transformadores")
+                    .setLabelColor(Color.WHITE)
+                    .setLabelBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.colorPrimaryDark,
+                            getTheme()))
+                    .create());
+            if (fabWithLabelView != null) {
+                fabWithLabelView.setSpeedDialActionItem(fabWithLabelView.getSpeedDialActionItemBuilder()
+                        .setFabBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.colorPrimaryDark,
+                                getTheme()))
+                        .create());
+            }
+
+            Drawable IndicadoresDrawable = AppCompatResources.getDrawable(MapsActivity2.this, ic_filter_outline_white_18dp);
+            FabWithLabelView fabWithLabelView2 = mSpeedDialView.addActionItem(new SpeedDialActionItem.Builder(R.id
+                    .fab_indicadores, IndicadoresDrawable)
+                    .setFabImageTintColor(ResourcesCompat.getColor(getResources(), R.color.white, getTheme()))
+                    .setLabel("Indicadores")
+                    .setLabelColor(Color.WHITE)
+                    .setLabelBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.colorPrimaryDark,
+                            getTheme()))
+                    .create());
+            if (fabWithLabelView2 != null) {
+                fabWithLabelView.setSpeedDialActionItem(fabWithLabelView.getSpeedDialActionItemBuilder()
+                        .setFabBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.colorPrimaryDark,
+                                getTheme()))
+                        .create());
+            }
+
+
+        }
+
+        //Set main action clicklistener.
+        mSpeedDialView.setOnChangeListener(new SpeedDialView.OnChangeListener() {
+            @Override
+            public boolean onMainActionSelected() {
+                showToast("Main action clicked!");
+                return false; // True to keep the Speed Dial open
+            }
+
+            @Override
+            public void onToggleChanged(boolean isOpen) {
+                Log.d(TAG, "Speed dial toggle state changed. Open = " + isOpen);
+            }
+        });
+
+        //Set option fabs clicklisteners.
+        mSpeedDialView.setOnActionSelectedListener(new SpeedDialView.OnActionSelectedListener() {
+            @Override
+            public boolean onActionSelected(SpeedDialActionItem actionItem) {
+                switch (actionItem.getId()) {
+                    case R.id.fab_transformadores:
+                        showToast("Transformadores clicked!\nClosing with animation");
+                        mSpeedDialView.close(); // To close the Speed Dial with animation
+                        return true; // false will close it without animation
+                    case R.id.fab_indicadores:
+                        showToast("Indicadores clicked!\nClosing with animation");
+                        mSpeedDialView.close(); // To close the Speed Dial with animation
+                        return true; // false will close it without animation
+
+                    default:
+                        break;
+                }
+                return true; // To keep the Speed Dial open
+            }
+        });
+
+    }
+
+    public void showToast(String message){
+        System.out.println(message);
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch(v.getId()) {
+
+
         }
     }
 }
