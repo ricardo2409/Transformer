@@ -77,12 +77,14 @@ public class MapsActivity2 extends FragmentActivity implements OnMapReadyCallbac
     List<Marker> indicadorMarkers = new ArrayList<Marker>();
     private SpeedDialView mSpeedDialView;
     private static final String TAG = MapsActivity2.class.getSimpleName();
-
+    FabWithLabelView fabWithLabelView, fabWithLabelView2;
+    Boolean transformadoresClicked, indicadoresClicked;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps2);
-
+        transformadoresClicked  = true;
+        indicadoresClicked = true;
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         ivInfo = (ImageView)findViewById(R.id.ivInfo);
 
@@ -405,7 +407,7 @@ public class MapsActivity2 extends FragmentActivity implements OnMapReadyCallbac
         if (addActionItems) {
 
             Drawable TransformadoresDrawable = AppCompatResources.getDrawable(MapsActivity2.this, ic_filter_outline_white_18dp);
-            FabWithLabelView fabWithLabelView = mSpeedDialView.addActionItem(new SpeedDialActionItem.Builder(R.id
+            fabWithLabelView = mSpeedDialView.addActionItem(new SpeedDialActionItem.Builder(R.id
                     .fab_transformadores, TransformadoresDrawable)
                     .setFabImageTintColor(ResourcesCompat.getColor(getResources(), R.color.white, getTheme()))
                     .setLabel("Transformadores")
@@ -415,13 +417,13 @@ public class MapsActivity2 extends FragmentActivity implements OnMapReadyCallbac
                     .create());
             if (fabWithLabelView != null) {
                 fabWithLabelView.setSpeedDialActionItem(fabWithLabelView.getSpeedDialActionItemBuilder()
-                        .setFabBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.colorPrimaryDark,
+                        .setFabBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.green,
                                 getTheme()))
                         .create());
             }
 
             Drawable IndicadoresDrawable = AppCompatResources.getDrawable(MapsActivity2.this, ic_filter_outline_white_18dp);
-            FabWithLabelView fabWithLabelView2 = mSpeedDialView.addActionItem(new SpeedDialActionItem.Builder(R.id
+            fabWithLabelView2 = mSpeedDialView.addActionItem(new SpeedDialActionItem.Builder(R.id
                     .fab_indicadores, IndicadoresDrawable)
                     .setFabImageTintColor(ResourcesCompat.getColor(getResources(), R.color.white, getTheme()))
                     .setLabel("Indicadores")
@@ -430,8 +432,8 @@ public class MapsActivity2 extends FragmentActivity implements OnMapReadyCallbac
                             getTheme()))
                     .create());
             if (fabWithLabelView2 != null) {
-                fabWithLabelView.setSpeedDialActionItem(fabWithLabelView.getSpeedDialActionItemBuilder()
-                        .setFabBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.colorPrimaryDark,
+                fabWithLabelView2.setSpeedDialActionItem(fabWithLabelView2.getSpeedDialActionItemBuilder()
+                        .setFabBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.green,
                                 getTheme()))
                         .create());
             }
@@ -460,10 +462,26 @@ public class MapsActivity2 extends FragmentActivity implements OnMapReadyCallbac
                 switch (actionItem.getId()) {
                     case R.id.fab_transformadores:
                         showToast("Transformadores clicked!\nClosing with animation");
+                        if(transformadoresClicked){
+                            removeTransformadores();
+                            transformadoresClicked = false;
+                        }else {
+                            //Show
+                            showTransformadores();
+                            transformadoresClicked = true;
+                        }
                         mSpeedDialView.close(); // To close the Speed Dial with animation
                         return true; // false will close it without animation
                     case R.id.fab_indicadores:
                         showToast("Indicadores clicked!\nClosing with animation");
+                        if(indicadoresClicked){
+                            removeIndicadores();
+                            indicadoresClicked = false;
+                        }else{
+                            //Show
+                            showIndicadores();
+                            indicadoresClicked = true;
+                        }
                         mSpeedDialView.close(); // To close the Speed Dial with animation
                         return true; // false will close it without animation
 
@@ -474,6 +492,51 @@ public class MapsActivity2 extends FragmentActivity implements OnMapReadyCallbac
             }
         });
 
+    }
+    public void removeTransformadores(){
+        for(int i = 0; i < transformadorMarkers.size(); i ++){
+            transformadorMarkers.get(i).setVisible(false);
+        }
+        if (fabWithLabelView != null) {
+            fabWithLabelView.setSpeedDialActionItem(fabWithLabelView.getSpeedDialActionItemBuilder()
+                    .setFabBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.red,
+                            getTheme()))
+                    .create());
+        }
+    }
+    public void removeIndicadores(){
+        for(int i = 0; i < indicadorMarkers.size(); i ++){
+            indicadorMarkers.get(i).setVisible(false);
+        }
+        if (fabWithLabelView2 != null) {
+            fabWithLabelView2.setSpeedDialActionItem(fabWithLabelView2.getSpeedDialActionItemBuilder()
+                    .setFabBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.red,
+                            getTheme()))
+                    .create());
+        }
+    }
+    public void showTransformadores(){
+        for(int i = 0; i < transformadorMarkers.size(); i ++){
+            transformadorMarkers.get(i).setVisible(true);
+
+        }
+        if (fabWithLabelView != null) {
+            fabWithLabelView.setSpeedDialActionItem(fabWithLabelView.getSpeedDialActionItemBuilder()
+                    .setFabBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.green,
+                            getTheme()))
+                    .create());
+        }
+    }
+    public void showIndicadores(){
+        for(int i = 0; i < indicadorMarkers.size(); i ++){
+            indicadorMarkers.get(i).setVisible(true);
+        }
+        if (fabWithLabelView2 != null) {
+            fabWithLabelView2.setSpeedDialActionItem(fabWithLabelView2.getSpeedDialActionItemBuilder()
+                    .setFabBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.green,
+                            getTheme()))
+                    .create());
+        }
     }
 
     public void showToast(String message){
