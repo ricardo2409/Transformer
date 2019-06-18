@@ -236,6 +236,8 @@ public class MapsActivity2 extends FragmentActivity implements OnMapReadyCallbac
 
             @Override
             public View getInfoContents(Marker marker) {
+                String lat = Double.toString(marker.getPosition().latitude);
+                String longi = Double.toString(marker.getPosition().longitude);
                 String[] splitArray = marker.getTitle().split(",");
                 String auxAparato = splitArray[0];
                 System.out.println("Esto tiene auxaparato: " + auxAparato);
@@ -244,7 +246,7 @@ public class MapsActivity2 extends FragmentActivity implements OnMapReadyCallbac
                     System.out.println("Transformador");
 
                     View v = getLayoutInflater().inflate(R.layout.custominfo, null);
-                    v.setLayoutParams(new RelativeLayout.LayoutParams(650, RelativeLayout.LayoutParams.WRAP_CONTENT));
+                    v.setLayoutParams(new RelativeLayout.LayoutParams(900, RelativeLayout.LayoutParams.WRAP_CONTENT));
                     ImageView ivFoto = (ImageView)v.findViewById(R.id.ivInfo);
                     String id = marker.getSnippet();
                     TextView tvMarca = (TextView)v.findViewById(R.id.tvMarcaInfo);
@@ -253,6 +255,8 @@ public class MapsActivity2 extends FragmentActivity implements OnMapReadyCallbac
                     TextView tvTipo = (TextView)v.findViewById(R.id.tvTipo);
                     TextView tvPoste = (TextView)v.findViewById(R.id.tvPoste);
                     TextView tvVoltaje = (TextView)v.findViewById(R.id.tvVoltaje);
+                    TextView tvLatitude = (TextView)v.findViewById(R.id.tvLatitude);
+                    TextView tvLongitude = (TextView)v.findViewById(R.id.tvLongitude);
                     System.out.println("Esto tiene split: " + splitArray);
                     //Get transformador image with marker id
                     for(int i = 0; i < lista.size(); i++) {
@@ -278,6 +282,8 @@ public class MapsActivity2 extends FragmentActivity implements OnMapReadyCallbac
                     tvTipo.setText(splitArray[4]);
                     tvPoste.setText(splitArray[5]);
                     tvVoltaje.setText(splitArray[6]);
+                    tvLatitude.setText(lat);
+                    tvLongitude.setText(longi);
                     return v;
 
                 }else if(auxAparato.equals("Indicador de Falla")){
