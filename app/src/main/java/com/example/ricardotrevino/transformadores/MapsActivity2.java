@@ -47,6 +47,7 @@ import com.leinardi.android.speeddial.FabWithLabelView;
 import com.leinardi.android.speeddial.SpeedDialActionItem;
 import com.leinardi.android.speeddial.SpeedDialView;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -236,8 +237,13 @@ public class MapsActivity2 extends FragmentActivity implements OnMapReadyCallbac
 
             @Override
             public View getInfoContents(Marker marker) {
-                String lat = Double.toString(marker.getPosition().latitude);
-                String longi = Double.toString(marker.getPosition().longitude);
+                Double lat = marker.getPosition().latitude;
+                Double longi = marker.getPosition().longitude;
+
+                DecimalFormat df = new DecimalFormat("#.#####");
+                String latTrimmed = df.format(lat);
+                DecimalFormat df2 = new DecimalFormat("#.#####");
+                String longTrimmed = df.format(longi);
                 String[] splitArray = marker.getTitle().split(",");
                 String auxAparato = splitArray[0];
                 System.out.println("Esto tiene auxaparato: " + auxAparato);
@@ -282,8 +288,8 @@ public class MapsActivity2 extends FragmentActivity implements OnMapReadyCallbac
                     tvTipo.setText(splitArray[4]);
                     tvPoste.setText(splitArray[5]);
                     tvVoltaje.setText(splitArray[6]);
-                    tvLatitude.setText(lat);
-                    tvLongitude.setText(longi);
+                    tvLatitude.setText(latTrimmed);
+                    tvLongitude.setText(longTrimmed);
                     return v;
 
                 }else if(auxAparato.equals("Indicador de Falla")){
@@ -292,6 +298,8 @@ public class MapsActivity2 extends FragmentActivity implements OnMapReadyCallbac
                     View v = getLayoutInflater().inflate(R.layout.custominfoindicador, null);
                     v.setLayoutParams(new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT));
                     ImageView ivFoto = (ImageView)v.findViewById(R.id.ivInfoIndicador);
+                    TextView tvLatitude = (TextView)v.findViewById(R.id.tvLatitude);
+                    TextView tvLongitude = (TextView)v.findViewById(R.id.tvLongitude);
                     //Get transformador image with marker id
                     String id = marker.getSnippet();
 
@@ -312,6 +320,8 @@ public class MapsActivity2 extends FragmentActivity implements OnMapReadyCallbac
                             System.out.println("No es el mismo");
                         }
                     }
+                    tvLatitude.setText(latTrimmed);
+                    tvLongitude.setText(longTrimmed);
                     return v;
                 }
 
