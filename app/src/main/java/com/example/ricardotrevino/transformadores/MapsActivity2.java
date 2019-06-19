@@ -116,7 +116,7 @@ public class MapsActivity2 extends FragmentActivity implements OnMapReadyCallbac
             //Checa si la red está permitida
             if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                 System.out.println("GPS");
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 0, new LocationListener() {
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 10, 0, new LocationListener() {
                     @Override
                     public void onLocationChanged(Location location) {
                         float speed = location.getSpeed();
@@ -206,7 +206,7 @@ public class MapsActivity2 extends FragmentActivity implements OnMapReadyCallbac
             //Permission granted
         } else {
             //Permission denied
-            EasyPermissions.requestPermissions(this, "Please grant the location permission", REQUEST_LOCATION_PERMISSION, perms);
+            EasyPermissions.requestPermissions(this, "Favor de otorgar permiso de ubicación", REQUEST_LOCATION_PERMISSION, perms);
         }
     }
 
@@ -224,7 +224,7 @@ public class MapsActivity2 extends FragmentActivity implements OnMapReadyCallbac
         mMap = googleMap;
         mMap.setOnInfoWindowClickListener(this);
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-
+            requestLocationPermission();
             return;
         }else{
             mMap.setMyLocationEnabled(true);
