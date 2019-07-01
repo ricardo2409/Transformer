@@ -94,13 +94,6 @@ public class MainActivity extends EasyLocationAppCompatActivity implements Adapt
                 .awsConfiguration(configuration)
                 .build();
 
-        /*
-        try {
-            readTransformadores();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        */
     }
 
     @Override
@@ -108,13 +101,7 @@ public class MainActivity extends EasyLocationAppCompatActivity implements Adapt
         //Pide los transformadores
         super.onPostResume();
         print("OnPostResume");
-        /*
-        try {
-            readTransformadores();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        */
+
     }
 
     public static MainActivity getInstance(){

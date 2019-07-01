@@ -242,7 +242,6 @@ public class MapsActivity2 extends FragmentActivity implements OnMapReadyCallbac
 
                 DecimalFormat df = new DecimalFormat("#.#####");
                 String latTrimmed = df.format(lat);
-                DecimalFormat df2 = new DecimalFormat("#.#####");
                 String longTrimmed = df.format(longi);
                 String[] splitArray = marker.getTitle().split(",");
                 String auxAparato = splitArray[0];
